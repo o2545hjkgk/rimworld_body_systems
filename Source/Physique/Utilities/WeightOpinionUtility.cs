@@ -65,18 +65,19 @@ namespace Physique.Utilities
         }
 
         /// <summary>
-        /// Pawns who like being heavier start out a bit heavier, and vice versa.
+        /// Pawns who like being heavier start out a bit heavier, and vice versa. In BMI points
+        /// (1 point is about 3 kg at 1.75 m).
         /// </summary>
-        public static float StartingWeightBonusKilos(Pawn pawn)
+        public static float StartingBmiBonus(Pawn pawn)
         {
             TraitDef trait = WeightOpinionTrait(pawn);
-            if (trait == TraitDefOf.Physique_WeightOpinion_Hate)        return Rand.Range(-20f, -10f);
-            if (trait == TraitDefOf.Physique_WeightOpinion_Dislike)     return Rand.Range(-10f, 0f);
-            if (trait == TraitDefOf.Physique_WeightOpinion_Neutral)     return Rand.Range(0f, 10f);
-            if (trait == TraitDefOf.Physique_WeightOpinion_NeutralPlus) return Rand.Range(0f, 20f);
-            if (trait == TraitDefOf.Physique_WeightOpinion_Like)        return Rand.Range(0f, 30f);
-            if (trait == TraitDefOf.Physique_WeightOpinion_Love)        return Rand.Range(20f, 70f);
-            if (trait == TraitDefOf.Physique_WeightOpinion_Fanatical)   return Rand.Range(20f, 100f);
+            if (trait == TraitDefOf.Physique_WeightOpinion_Hate)        return Rand.Range(-6.5f, -3.3f);
+            if (trait == TraitDefOf.Physique_WeightOpinion_Dislike)     return Rand.Range(-3.3f, 0f);
+            if (trait == TraitDefOf.Physique_WeightOpinion_Neutral)     return Rand.Range(0f, 3.3f);
+            if (trait == TraitDefOf.Physique_WeightOpinion_NeutralPlus) return Rand.Range(0f, 6.5f);
+            if (trait == TraitDefOf.Physique_WeightOpinion_Like)        return Rand.Range(0f, 9.8f);
+            if (trait == TraitDefOf.Physique_WeightOpinion_Love)        return Rand.Range(6.5f, 22.9f);
+            if (trait == TraitDefOf.Physique_WeightOpinion_Fanatical)   return Rand.Range(6.5f, 32.7f);
             return 0f;
         }
     }

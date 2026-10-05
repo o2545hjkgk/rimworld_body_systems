@@ -61,20 +61,104 @@ namespace Physique.Tests
         }
 
         [Fact]
-        public void StartingWeightAboveLeanMassBecomesFat()
+        public void StartingBmiAboveLeanMassBecomesFat()
         {
-            BodyComposition body = BodyMath.StartingComposition(175f, 30f, 26f, 3f, 90f);
+            BodyComposition body = BodyMath.StartingComposition(175f, 30f, 26f, 3f, 30f, 322f);
             Assert.Equal(26f, body.MuscleKg);
-            Assert.Equal(34f, body.FatKg, 3);
-            Assert.Equal(90f, body.WeightKg, 3);
+            Assert.Equal(91.875f - 56f, body.FatKg, 3);
+            Assert.Equal(30f, body.Bmi, 3);
         }
 
         [Fact]
-        public void StartingWeightBelowLeanMassKeepsEssentialFat()
+        public void StartingBmiBelowLeanMassKeepsEssentialFat()
         {
-            BodyComposition body = BodyMath.StartingComposition(175f, 30f, 26f, 3f, 45f);
+            BodyComposition body = BodyMath.StartingComposition(175f, 30f, 26f, 3f, 14f, 322f);
             Assert.Equal(26f, body.MuscleKg);
             Assert.Equal(3f, body.FatKg);
+        }
+
+        [Fact]
+        public void StartingBmiIsCapped()
+        {
+            Assert.Equal(322f, BodyMath.StartingComposition(175f, 30f, 26f, 3f, 400f, 322f).Bmi, 3);
+        }
+
+        [Theory]
+        [InlineData(175f, 30f, 26f, 322f, 986.1f - 56f)]
+        [InlineData(195f, 37.25f, 32.28f, 322f, 1224.4f - 69.53f)]   // taller pawns can carry more before hitting the cap
+        [InlineData(175f, 30f, 26f, 15f, 0f)]                       // already past the cap
+        public void MaxFatStopsAtTheBmiCap(float heightCm, float frameKg, float muscleKg, float maxBmi, float expected)
+        {
+            Assert.Equal(expected, BodyMath.MaxFatKg(heightCm, frameKg, muscleKg, maxBmi), 0);
+        }
+
+        [Theory]
+        [InlineData(0f, 175f)]
+        [InlineData(1f, 182f)]
+        [InlineData(-2f, 161f)]
+        [InlineData(10f, 196f)]    // clamped to +3 SD
+        [InlineData(-10f, 154f)]   // clamped to -3 SD
+        public void AdultHeightFollowsTheDistribution(float z, float expectedCm)
+        {
+            Assert.Equal(expectedCm, BodyMath.AdultHeightCm(175f, 7f, z), 3);
+        }
+
+        [Theory]
+        [InlineData(0f, 18f, 0.29f)]
+        [InlineData(3f, 18f, 0.55f)]
+        [InlineData(4f, 18f, 0.59f)]     // between 3 and 5
+        [InlineData(18f, 18f, 1f)]
+        [InlineData(40f, 18f, 1f)]
+        [InlineData(5f, 10f, 0.76f)]     // a race adult at 10 is "9 in human years" at 5: between 8 (0.73) and 10 (0.79)
+        public void GrowthFollowsTheHumanCurve(float age, float adultAge, float fraction)
+        {
+            Assert.Equal(fraction, BodyMath.GrowthFraction(age, adultAge), 3);
+        }
+
+        [Fact]
+        public void GrowthNeverShrinks()
+        {
+            float previous = 0f;
+            for (float age = 0f; age <= 20f; age += 0.25f)
+            {
+                float fraction = BodyMath.GrowthFraction(age, 18f);
+                Assert.True(fraction >= previous, $"Shrank at age {age}");
+                previous = fraction;
+            }
+        }
+
+        [Fact]
+        public void LeanMassScalesWithHeightSquared()
+        {
+            Assert.Equal(1f, BodyMath.MassScaleForHeight(175f, 175f), 5);
+            Assert.Equal(0.857f, BodyMath.MassScaleForHeight(162f, 175f), 3);
+            // A taller and a shorter body built the same way have the same BMI.
+            var tall = new BodyComposition(190f, 30f * BodyMath.MassScaleForHeight(190f, 175f), 26f * BodyMath.MassScaleForHeight(190f, 175f), 14f * BodyMath.MassScaleForHeight(190f, 175f));
+            var shortBody = new BodyComposition(155f, 30f * BodyMath.MassScaleForHeight(155f, 175f), 26f * BodyMath.MassScaleForHeight(155f, 175f), 14f * BodyMath.MassScaleForHeight(155f, 175f));
+            Assert.Equal(tall.Bmi, shortBody.Bmi, 3);
+        }
+
+        [Fact]
+        public void RaceHeightScalesWithTheCubeRootOfBodySize()
+        {
+            Assert.Equal(1f, BodyMath.RaceHeightScale(1f), 5);
+            Assert.Equal(2f, BodyMath.RaceHeightScale(8f), 4);
+        }
+
+        [Fact]
+        public void StuntingIsProportionalToSeverityAndTime()
+        {
+            Assert.Equal(0.5f, BodyMath.StuntingCm(0.5f, 10f, 0.1f), 5);
+            Assert.Equal(0f, BodyMath.StuntingCm(-1f, 10f, 0.1f));
+        }
+
+        [Theory]
+        [InlineData(175f, false, "1.75 m")]
+        [InlineData(175f, true, "5'9\"")]
+        [InlineData(152.4f, true, "5'0\"")]
+        public void FormatsHeight(float cm, bool imperial, string expected)
+        {
+            Assert.Equal(expected, BodyMath.FormatHeight(cm, imperial));
         }
 
         [Theory]
@@ -113,13 +197,13 @@ namespace Physique.Tests
         [InlineData(1.0f, 1.0f, 100f)]
         public void SamplesBetweenNeighbouringPoints(float roll, float lerpRoll, float kilos)
         {
-            Assert.Equal(kilos, BodyMath.SampleWeightDistribution(Distribution, roll, lerpRoll), 3);
+            Assert.Equal(kilos, BodyMath.SampleDistribution(Distribution, roll, lerpRoll), 3);
         }
 
         [Fact]
         public void RollPastTheLastPointReturnsTheLastWeight()
         {
-            Assert.Equal(100f, BodyMath.SampleWeightDistribution(Distribution, 1.5f, 0f));
+            Assert.Equal(100f, BodyMath.SampleDistribution(Distribution, 1.5f, 0f));
         }
     }
 }

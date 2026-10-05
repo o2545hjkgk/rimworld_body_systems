@@ -6,12 +6,12 @@
 - **Fat**: the energy store. It's gained by eating past a full food bar and lost by going hungry.
 - **Muscle**: strength, built by physical work and lost through inactivity, starvation and age.
 
-Total weight is *derived* from these systems (lean frame + muscle + fat), not stored on its own. Once growth exists, height is known, so fat effects can use BMI or body-fat % instead of the kg thresholds that assume a 1.75 m adult.
+Total weight is *derived* from these systems (frame + muscle + fat), not stored on its own, and weight stages follow BMI from each pawn's own height.
 
 Guiding principles:
 
 1. **Realistic first, tunable second.** Effects come from real physiology. Pacing lives in settings.
-2. **Vanilla-compatible.** Work with vanilla body types, apparel and genes before adding custom art.
+2. **True to scale.** Bodies look as big as they are, up to the huge top stages, while staying compatible with vanilla mechanics, apparel and genes wherever the art allows.
 3. **Small surface.** Each system is one hediff plus one utility class, with no stomach, perks or buildings.
 
 ---
@@ -31,27 +31,38 @@ Guiding principles:
 - [x] The flat 60 kg fat reserve floor is replaced by essential fat. Below it, starvation wastes muscle, which is now the only way to become underweight.
 - [ ] Follow-up: move obesity effects onto fat % and wasting effects onto muscle once growth and muscle exist, so they no longer ride on BMI alone.
 
-## Phase 2 — Growth
+## Phase 2 — Growth ✅
 
-- [ ] Generate adult height per pawn from a sex- and race-dependent distribution. Respect Biotech body-size genes and HAR races, and leave vanilla `BodySize` untouched.
-- [ ] Children grow along a curve tied to life stage and age. Sustained malnutrition in childhood stunts final height.
-- [ ] Height drives lean frame mass, and through it expected weight, BMI and a small draw-scale tweak, if render-safe.
-- [ ] Show height and BMI on the health tab.
+- [x] Each pawn rolls an adult height from a sex-based normal distribution (men 175 ± 7 cm, women 162 ± 6.5 cm, clamped to ±3 SD), stored in a hidden `Physique_Height` hediff. Vanilla `BodySize` is untouched; other races' real height scales with the cube root of their base body size.
+- [x] Children grow along a human growth curve stretched to the race's adult age. Malnutrition while growing permanently stunts adult height (0.1 cm per day at full severity, up to 12 cm).
+- [x] Frame and baseline muscle scale with height², so BMI is fair across heights. Starting weights and the weight cap are BMI, so every height starts in the same classes and can reach Gigantic II.
+- [x] The weight tooltip shows current height (and a child's adult height), stunting, BMI, body fat % and muscle.
+- Deferred: draw scale from height moves to Phase 4. Vanilla has no height genes; revisit for modded genes and HAR races in Phase 5.
 
 ## Phase 3 — Muscle
 
-- [ ] Add a muscle hediff (severity = muscle mass relative to frame), seeded from backstory and skills at generation.
+The muscle hediff and starvation wasting already exist from Phase 1. Phase 3 makes muscle a system of its own:
+
+- [ ] Seed starting muscle from sex, backstory and skills, instead of 26 ± 3 kg for everyone. Give women higher essential fat (about 12% versus 3%).
 - [ ] **Gain:** strength work (mining, construction, hauling, melee, plant cutting) adds a training stimulus. Muscle grows with stimulus plus adequate food, with diminishing returns toward a genetic ceiling.
-- [ ] **Loss:** inactivity (bed rest, downed), starvation (muscle is burned once fat runs out) and age-related decline (sarcopenia).
+- [ ] **Loss:** inactivity (bed rest, downed) and age-related decline (sarcopenia), on top of starvation wasting.
 - [ ] **Effects:** melee damage, carrying capacity, mining and construction speed, and a slight Moving bonus. Muscle burns more energy at rest, so hunger rises too. Muscle also partly offsets the Moving penalty from fat.
+- [ ] Make muscle visible on the health tab once it has effects of its own.
 
-## Phase 4 — Appearance
+## Phase 4 — Appearance: full-size bodies
 
-1. [ ] **Vanilla body-type mapping (no new art).** Choose Thin / Male / Female / Fat / Hulk from fat % and muscle. This works with vanilla apparel and with any body retexture the player has installed.
-2. [ ] **Original textures in the "vanilla-plus" style** (white fill, soft radial shading, heavy black outline, minimal pec/ab/navel lines, 512 px). Draw intermediate fat and muscle steps between the vanilla types, built with a scripted SVG/vector pipeline so all three facings stay consistent.
-3. [ ] **Apparel:** reuse vanilla apparel textures by drawing in-between bodies with the nearest vanilla body type's apparel plus a small scale factor, rather than drawing apparel for every new body.
+The goal is RimRound's scale, not a few steps between vanilla's Thin and Fat. Every weight stage gets its own body, drawn at the size that stage really is: a Gigantic II pawn (about 900 kg) is several times wider than any vanilla body and spills well past its tile.
 
-> The uploaded `2662457442` folder (*Erin's Body Retexture*) has no license, so it's reference only: we match the style but don't ship, trace or edit those files. Shipping them would need Erin's written permission.
+- [ ] **One body per weight stage** (Emaciated through Gigantic II), each a `BodyTypeDef` with its own naked texture, `bodyGraphicScale` and head offset, chosen from the pawn's weight stage. Muscle (Phase 3) can pick muscular variants of the lean and average stages.
+- [ ] **Sizes from the body model.** Derive each stage's drawn width from its weight and height (body volume spread over the pawn's height) in `BodyMath`, so sprites grow consistently and the scale is tested rather than eyeballed. Height adds a modest vertical scale.
+- [ ] **Art in the "vanilla-plus" style**: white fill for skin tinting, soft radial shading, heavy black outline, minimal pec/ab/navel lines. Sprites are generated from a scripted vector (SVG) pipeline per stage × facing × sex, so all three facings stay consistent and shapes are easy to tweak.
+- [ ] **Apparel**: vanilla apparel only exists for vanilla body shapes.
+  - Up to about Obese, reuse the vanilla Fat body's apparel, scaled to fit.
+  - Above that, draw a stage-specific clothing overlay tinted with the worn apparel's colour, as RimRound's clothing sets did, instead of stretching vanilla art past breaking point.
+  - Exactly how far to go here is a decision for the owner.
+- [ ] **Rendering huge bodies:** large meshes, portraits (scale to fit), beds and downed pawns, and keeping the head on top of the body.
+
+> The uploaded `2662457442` folder (*Erin's Body Retexture*) has no license, so it's a style reference only: we match the style but don't ship, trace or edit those files. Shipping them would need Erin's written permission.
 
 ## Phase 5 — Polish and compatibility
 

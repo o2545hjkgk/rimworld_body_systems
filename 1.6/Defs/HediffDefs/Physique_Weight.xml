@@ -8,7 +8,7 @@
 		<labelNoun>weight</labelNoun>
 		<description>This person's body weight: their frame, muscle and fat together. Fat is gained by eating more than they burn and lost by going hungry. Once fat runs out, starvation eats into muscle.
 
-Stages follow BMI. Until height is modelled, every adult is treated as 1.75 m tall, and children and other races are judged relative to their body size.</description>
+Stages follow BMI, so tall and short people are judged fairly. Children and other races are judged as if they were adults of their eventual height.</description>
 		<hediffClass>Physique.Hediffs.Hediff_Weight</hediffClass>
 		<isBad>false</isBad>
 		<everCurableByItem>false</everCurableByItem>
@@ -18,13 +18,27 @@ Stages follow BMI. Until height is modelled, every adult is treated as 1.75 m ta
 
 		<modExtensions>
 			<li Class="Physique.Hediffs.BodyModelExtension">
-				<!-- Adult-equivalent values for body size 1. -->
+				<!-- Adult-equivalent values for body size 1. The masses below are for an adult of
+				     referenceHeightCm and scale with height squared for everyone else. -->
 				<referenceHeightCm>175</referenceHeightCm>
 				<!-- Bone, organs, blood, skin: everything but skeletal muscle and fat. -->
 				<frameKg>30</frameKg>
 				<baselineMuscleKg>26</baselineMuscleKg>
 				<!-- Fat the body won't burn for energy; below it, starvation wastes muscle. -->
 				<essentialFatKg>3</essentialFatKg>
+				<!-- Weight cap, as BMI so it applies equally at every height. 322 is just under 990 kg at 1.75 m,
+				     where Titanic used to begin, so Gigantic II is the heaviest stage. Lower it to lower the cap. -->
+				<maxBmi>322</maxBmi>
+
+				<!-- Adult height distributions (normal, clamped to ±3 SD). -->
+				<maleHeightCm>175</maleHeightCm>
+				<maleHeightSdCm>7</maleHeightSdCm>
+				<femaleHeightCm>162</femaleHeightCm>
+				<femaleHeightSdCm>6.5</femaleHeightSdCm>
+
+				<!-- Adult height lost per day of malnutrition at full severity while still growing, and the most it can lose. -->
+				<stuntingCmPerDay>0.1</stuntingCmPerDay>
+				<maxStuntingCm>12</maxStuntingCm>
 			</li>
 		</modExtensions>
 

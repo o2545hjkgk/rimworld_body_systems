@@ -23,12 +23,25 @@ namespace Physique.Hediffs
                     if (tip.Length > 0 && tip[tip.Length - 1] != '\n')
                         tip.AppendLine();
                     bool pounds = PhysiqueMod.Settings.usePounds;
-                    tip.AppendLine("Physique_Tip_Bmi".Translate(body.Bmi.ToString("0.0"), body.HeightCm.ToString("0")));
+                    AppendHeight(tip, body, pounds);
+                    tip.AppendLine("Physique_Tip_Bmi".Translate(body.Bmi.ToString("0.0")));
                     tip.AppendLine("Physique_Tip_BodyFat".Translate(body.BodyFatFraction.ToStringPercent(), BodyMath.FormatWeight(BodyMath.ToRealKilos(body.FatKg, pawn.BodySize), pounds)));
                     tip.AppendLine("Physique_Tip_Muscle".Translate(BodyMath.FormatWeight(BodyMath.ToRealKilos(body.MuscleKg, pawn.BodySize), pounds)));
                 }
                 return tip.ToString().TrimEndNewlines();
             }
+        }
+
+        void AppendHeight(StringBuilder tip, BodyComposition body, bool imperial)
+        {
+            string current = BodyMath.FormatHeight(pawn.CurrentHeightCm(), imperial);
+            if (pawn.ageTracker.Adult)
+                tip.AppendLine("Physique_Tip_Height".Translate(current));
+            else
+                tip.AppendLine("Physique_Tip_HeightGrowing".Translate(current, BodyMath.FormatHeight(body.HeightCm * BodyMath.RaceHeightScale(pawn.RaceProps.baseBodySize), imperial)));
+
+            if (pawn.HeightHediff() is Hediff_Height height && height.geneticHeightCm - height.Severity >= 0.5f)
+                tip.AppendLine("Physique_Tip_Stunted".Translate((height.geneticHeightCm - height.Severity).ToString("0")));
         }
     }
 }
