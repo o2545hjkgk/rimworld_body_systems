@@ -1,36 +1,82 @@
-# RimRound - Alpha
+# RimRound (body weight core) — RimWorld 1.6
 
-RimRound is a mod for RimWorld aimed at adding weight gain and FA content to the game. Currently the mod implements the following features:
+A stripped-down RimRound with three systems:
 
-<ul>
-  <li>20 weight stages representing weights all the way up to over three thousand pounds.</li>
-  <ul>
-    <li>13 custom spite sets drawn by @Bamboo-Ale including 7 stages with a form of clothing.</li>
-    <li>Each stage applies a modifier to the pawn's hunger rate, need for rest and, at higher weights, their manipulation stat.</li>
-  </ul>
-  <li>A dynamic fullness system which allows for stomach growth, bursting and stuffing.</li>
-  <li>Eight sets of opinions on weight gain. Pawns have opinions on how big they'd like to be (or not!). Each stage of each opinion has flavor text written by rngsusd#9608</li>
-  <li>Diet management! This mod includes a diet management gizmo that lets you choose between four management modes. Nutrition mode, fullness mode, hybrid and disabled. Their functionality is best seen in game.
-  <li>Many settings to allow you to tweak your experience to your personal tastes, including tweaking values used by the mod as well as content settings.</li>
-  <li>Various utilities to improve the experience such as the ability to show pawn bodies when they are in bed, change the way they lay when they sleep, and personally exclude them from using this mod's bodies. All of these can be hidden in the setings. </li>
-  <li>Nutrition density! Foods can have differrent nutrition densities that reflect how calorie dense they are. Currently primarily implemented with Vanilla Cooking Expanded</li>
-  <li>Two operations to remove body fat.</li>
-  <li>A custom start screen! This can be toggled off in the RimWorld general settings.</li>
-  <li>Several tweaks to general game operation to work better with how pawns look when they are huge</li>
-  <br>
-  
-  <li>A feeding dispenser system which lets you liquify your food.</li>
-  <ul>
-    <li>This feature is currently in testing! If you would like not to use it, remove the feeding tube .dll from your Assemblies folder.</li>
-  </ul>
-</ul>
+- **Weight hediff.** Every humanlike pawn with a food need has a body weight, shown in kg (or lbs) on the health tab. The weight stage applies realistic effects to movement, manipulation, breathing, blood pumping, hunger, rest, immunity, temperature comfort and fertility.
+- **Weight opinion.** Each pawn gets one of eight opinion traits, from *Hate* to *Fanatical*. Each trait comes with a moodlet that depends on the pawn's current weight.
+- **Weight gain and loss.** Food eaten past a full food bar is stored as weight. A pawn that goes hungry while carrying fat burns it instead of starving.
 
-In the coming weeks and months content will continue to be added. Now that the core of the mod is becoming more stable I can focus on content. Either way, thank you for checking out the mod! If you have any problems or would like to discuss features, feel free to join the RimRound discord:
-https://discord.com/invite/WJfcpF3Feu
+The heaviest stage is currently **Gigantic II**. Weight is capped at 989 kg by `maxSeverity` in `1.6/Defs/HediffDefs/RimRound_Weight.xml`; lower that value to lower the cap.
 
-If you are unfamiliar with installing manual mods please follow the instructions here:
-https://rimworldwiki.com/wiki/Installing_mods
+## How weight is calculated
 
-# License
+For an adult human (body size 1):
 
-This project is, unless otherwise specified, licensed under the Unlicense. Specific assets may be licensed under CC-BY. Those assets are specified in the ATTRIBUTION file. You can read the CC-BY license [here](https://creativecommons.org/licenses/by/4.0/).
+```
+kg = severity × 1000 + 25
+```
+
+Other pawns weigh that amount times their body size. Stages and moodlets are therefore judged relative to the pawn's frame: a child or a small race isn't "emaciated" just for weighing less than an adult human.
+
+Height doesn't exist yet, so BMI can't be computed per pawn. The effects below were calibrated against an assumed 1.75 m adult. The BMI column shows what each band means at that height.
+
+## Stages
+
+Capacity changes are multipliers (`postFactor`), so a pawn with bionic legs keeps proportionally more of their speed. Moving also drops slightly from the Breathing and Blood pumping penalties, because vanilla factors those into it.
+
+| Stage | Weight (kg) | BMI @1.75 m | Hunger | Rest fall | Moving | Manip. | Breathing | Blood pump. | Other |
+|---|---|---|---|---|---|---|---|---|---|
+| Emaciated | 26–30 | < 10 | ×0.80 | ×1.15 | ×0.75 | ×0.85 | | ×0.90 | Consciousness ×0.90, immunity −25%, comfy min +8 °C, fertility ×0.3 |
+| Very Thin | 30–40 | 10–13 | ×0.85 | ×1.05 | ×0.90 | ×0.95 | | ×0.95 | Consciousness ×0.95, immunity −15%, comfy min +5 °C, fertility ×0.6 |
+| Thin | 40–60 | 13–20 | ×0.95 | | | | | | immunity −5%, comfy min +2 °C, fertility ×0.9 |
+| Thick | 60–75 | 20–24 | | | | | | | baseline, no effects |
+| Chunky | 75–90 | 24–29 | ×1.05 | | | | | | comfy range −1 °C |
+| Chubby | 90–115 | 29–38 | ×1.10 | ×1.03 | ×0.95 | | ×0.97 | | comfy range −2 °C, fertility ×0.95 |
+| Corpulent | 115–145 | 38–47 | ×1.20 | ×1.06 | ×0.90 | ×0.98 | ×0.94 | ×0.97 | immunity −3%, comfy range −3 °C, fertility ×0.9 |
+| Fat | 145–180 | 47–59 | ×1.35 | ×1.10 | ×0.82 | ×0.95 | ×0.90 | ×0.94 | immunity −5%, comfy range −4 °C, fertility ×0.85 |
+| Obese | 180–225 | 59–73 | ×1.50 | ×1.14 | ×0.72 | ×0.92 | ×0.86 | ×0.91 | immunity −8%, comfy range −5 °C, fertility ×0.8 |
+| Morbidly Obese | 225–255 | 73–83 | ×1.70 | ×1.18 | ×0.60 | ×0.88 | ×0.82 | ×0.88 | immunity −10%, comfy range −6 °C, fertility ×0.7 |
+| Morbidly Obese II | 255–305 | 83–100 | ×1.80 | ×1.22 | ×0.50 | ×0.84 | ×0.78 | ×0.85 | immunity −12%, comfy range −7 °C, fertility ×0.65 |
+| Lardy | 305–375 | 100–122 | ×2.10 | ×1.27 | ×0.38 | ×0.78 | ×0.72 | ×0.80 | immunity −15%, comfy range −8 °C, fertility ×0.55 |
+| Lardy II | 375–455 | 122–149 | ×2.40 | ×1.32 | ×0.27 | ×0.72 | ×0.66 | ×0.75 | immunity −18%, comfy range −9 °C, fertility ×0.45 |
+| Enormous | 455–560 | 149–183 | ×2.80 | ×1.37 | ×0.18 | ×0.65 | ×0.60 | ×0.70 | immunity −20%, comfy range −10 °C, fertility ×0.35 |
+| Enormous II | 560–685 | 183–224 | ×3.30 | ×1.42 | ×0.12 | ×0.58 | ×0.55 | ×0.65 | immunity −22%, comfy range −11 °C, fertility ×0.25 |
+| Gigantic | 685–825 | 224–269 | ×4.00 | ×1.46 | ×0.06 | ×0.50 | ×0.50 | ×0.60 | immunity −25%, comfy range −12 °C, fertility ×0.2 |
+| Gigantic II | 825–989 | 269–323 | ×4.60 | ×1.50 | ×0 | ×0.42 | ×0.45 | ×0.55 | immunity −28%, comfy range −13 °C, fertility ×0.15 |
+
+"Comfy range −N °C" means both ends of the comfortable temperature range drop: more fat insulates against cold and makes heat harder to tolerate.
+
+What drives these numbers:
+
+- **Hunger** follows resting energy expenditure (Mifflin–St Jeor), which rises roughly linearly with mass, with activity falling off at higher weights. Underweight bodies burn less.
+- **Moving** declines steadily with obesity. Below vanilla's 15% minimum a pawn can't walk and is downed, which happens from **Enormous II** (560 kg) onward. People above roughly 450–550 kg are usually bed-bound.
+- **Manipulation** is mostly reach and range of motion, so it falls more slowly than Moving.
+- **Breathing / Blood pumping** cover obesity hypoventilation and cardiac load.
+- **Rest fall** covers fatigue and sleep apnea.
+- Being **underweight** hurts strength, immunity, cold tolerance and fertility.
+
+## Gaining and losing weight
+
+- **Gain.** Vanilla throws away nutrition that doesn't fit in the food bar, for example eating a 0.9-nutrition meal when only 30% hungry. That surplus becomes weight.
+- **Loss.** While a pawn's food bar is below the *Hungry* threshold and they weigh more than `fatReserveFloor` (60 kg adult-equivalent), their body burns fat to cover the hunger. They stay hungry but don't starve, and they lose weight at their normal metabolic rate. At or below the floor, vanilla starvation applies and they keep losing weight while starving.
+
+Settings (Options → Mod settings → RimRound):
+
+- **Kilograms per nutrition**: default 1.0, RimRound's original pacing. About 0.2 is physiologically realistic: 1 nutrition is roughly 1,500 kcal and 1 kg of fat roughly 7,700 kcal.
+- **Gain / loss multipliers**, **show pounds**, and **weight opinion moodlets** on or off.
+
+Dev mode adds *RimRound* debug actions: add or remove 10 kg, add 100 kg, and cycle a pawn's weight opinion.
+
+## Building
+
+The C# project is `Source/RimRoundCore`. It uses NuGet reference packages, so it builds without a RimWorld install:
+
+```
+dotnet build Source/RimRoundCore -c Release
+```
+
+The output goes to `1.6/Assemblies/RimRound.dll`. Harmony is required at runtime.
+
+## License
+
+This project is, unless otherwise specified, licensed under the Unlicense. Weight opinion moodlet text by rngsusd#9608.
