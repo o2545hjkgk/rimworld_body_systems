@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+	<packageId>Erin.Body.Texture</packageId>
+	<name>Erin's Body Retexture</name>
+	<author>Erin</author>
+	<url></url>
+	<supportedVersions>
+		<li>1.3</li>
+		<li>1.4</li>
+		<li>1.5</li>
+		<li>1.6</li>
+	</supportedVersions>
+	<description>
+Just a simple body retexture since I didn't like any of the other ones around.
+	</description>
+	<loadAfter>
+		<li>vanillaexpanded.vtexe</li>
+		<li>Ryflamer.HDPawnTextures</li>
+		<li>neronix17.hd.pawns</li>
+		<li>tiagocc0.FemaleBodyVariants</li>
+	</loadAfter>
+</ModMetaData>
