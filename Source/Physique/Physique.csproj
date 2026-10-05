@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <AssemblyName>RimRound</AssemblyName>
-    <RootNamespace>RimRound</RootNamespace>
+    <AssemblyName>Physique</AssemblyName>
+    <RootNamespace>Physique</RootNamespace>
     <OutputPath>..\..\1.6\Assemblies\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>

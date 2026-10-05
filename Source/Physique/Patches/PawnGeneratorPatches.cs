@@ -1,8 +1,8 @@
 using HarmonyLib;
-using RimRound.Utilities;
+using Physique.Utilities;
 using Verse;
 
-namespace RimRound.Patches
+namespace Physique.Patches
 {
     [HarmonyPatch(typeof(PawnGenerator), "GenerateTraits")]
     public static class PawnGenerator_GenerateTraits_AddWeightOpinion

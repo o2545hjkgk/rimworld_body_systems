@@ -1,8 +1,9 @@
-using RimRound.Utilities;
+using Physique.Core;
+using Physique.Utilities;
 using RimWorld;
 using Verse;
 
-namespace RimRound.Hediffs
+namespace Physique.Hediffs
 {
     /// <summary>
     /// Body weight. Weight is gained from food eaten past a full stomach (see Thing_Ingested_GainWeightFromSurplus)
@@ -12,7 +13,7 @@ namespace RimRound.Hediffs
     {
         const int MetabolismIntervalTicks = 250;
 
-        public override string SeverityLabel => WeightUtility.FormatWeight(WeightUtility.SeverityToKilos(Severity, pawn));
+        public override string SeverityLabel => BodyMath.FormatWeight(WeightUtility.SeverityToKilos(Severity, pawn), PhysiqueMod.Settings.usePounds);
 
         public override void TickInterval(int delta)
         {
@@ -30,21 +31,24 @@ namespace RimRound.Hediffs
         void BurnFatIfHungry(int ticks)
         {
             Need_Food food = pawn.needs?.food;
-            if (food is null || food.CurLevelPercentage >= food.PercentageThreshHungry)
+            if (food is null)
+                return;
+
+            BodyMath.FastingResponse response = BodyMath.Fasting(
+                food.CurLevelPercentage,
+                food.PercentageThreshHungry,
+                food.CurCategory == HungerCategory.Starving,
+                pawn.AdultEquivalentWeight(),
+                WeightUtility.Extension.fatReserveFloor);
+
+            if (response == BodyMath.FastingResponse.None)
                 return;
 
             float nutritionBurned = food.FoodFallPerTickAssumingCategory(HungerCategory.Fed, true) * ticks;
-            float kilosBurned = nutritionBurned * RimRoundMod.Settings.kgPerNutrition * RimRoundMod.Settings.weightLossMultiplier;
-
-            if (pawn.AdultEquivalentWeight() > WeightUtility.Extension.fatReserveFloor)
-            {
+            if (response == BodyMath.FastingResponse.BurnFatForFood)
                 food.CurLevel += nutritionBurned;
-                WeightUtility.ChangeWeight(pawn, -kilosBurned);
-            }
-            else if (food.CurCategory == HungerCategory.Starving)
-            {
-                WeightUtility.ChangeWeight(pawn, -kilosBurned);
-            }
+
+            WeightUtility.ChangeWeight(pawn, -nutritionBurned * PhysiqueMod.Settings.kgPerNutrition * PhysiqueMod.Settings.weightLossMultiplier);
         }
     }
 }

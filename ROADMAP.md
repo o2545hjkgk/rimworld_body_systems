@@ -16,12 +16,12 @@ Guiding principles:
 
 ---
 
-## Phase 0 — Clean slate and identity
+## Phase 0 — Clean slate and identity ✅
 
-- [ ] Delete the remaining legacy RimRound content: old `Source/RimRound`, the 1.3–1.5 folders, `Textures`, `Sounds`, and the unused 1.6 defs and patches. *Waiting on owner approval.*
-- [ ] Rename: namespace `RimRound` → `Physique`, Harmony id, settings category, assembly name. Prefix defs with `Physique_` and drop `RimRound_`/`RR_`.
-- [ ] Add a small test project for the pure math (unit conversions, stage lookup, energy balance) that runs without RimWorld. To make that possible, move the formulas out of `Verse`-typed code.
-- [ ] Settle the branch layout: `main` currently holds the uploaded reference textures but not the rebuilt core.
+- [x] Delete the remaining legacy RimRound content: old source, the 1.3–1.5 folders, textures, sounds, and the unused 1.6 defs and patches.
+- [x] Rename: namespace and assembly `Physique`, Harmony id `o2545hjkgk.Physique`, defs prefixed `Physique_`, placeholder preview and icon.
+- [x] Move the pure formulas into `Core/BodyMath.cs` and add `Source/Physique.Tests`, which also cross-checks the XML defs.
+- [x] Branch layout: the rebuilt core goes to `main` by pull request.
 
 ## Phase 1 — Body model refactor
 

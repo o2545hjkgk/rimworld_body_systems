@@ -2,12 +2,12 @@
 
 <Defs>
 	<HediffDef>
-		<defName>RimRound_Weight</defName>
+		<defName>Physique_Weight</defName>
 		<label>weight</label>
 		<defaultLabelColor>(1,0,0.5)</defaultLabelColor>
 		<labelNoun>weight</labelNoun>
 		<description>This person's body weight. Gaining weight comes from eating more than they burn. Losing it comes from going hungry while they have fat to burn.\n\nStage thresholds are for an adult human and scale with body size, so children and larger or smaller races are judged relative to their frame.</description>
-		<hediffClass>RimRound.Hediffs.Hediff_Weight</hediffClass>
+		<hediffClass>Physique.Hediffs.Hediff_Weight</hediffClass>
 		<isBad>false</isBad>
 		<everCurableByItem>false</everCurableByItem>
 		<initialSeverity>0.045</initialSeverity>
@@ -16,7 +16,7 @@
 		<maxSeverity>0.964</maxSeverity>
 
 		<modExtensions>
-			<li Class="RimRound.Hediffs.HediffDef_Weight">
+			<li Class="Physique.Hediffs.HediffDef_Weight">
 				<!-- Weight in kg at severity 0, for an adult of body size 1. kg = severity * 1000 + baseWeight. -->
 				<baseWeight>25</baseWeight>
 				<!-- Above this weight (kg, adult-equivalent) a hungry pawn burns fat instead of starving. -->

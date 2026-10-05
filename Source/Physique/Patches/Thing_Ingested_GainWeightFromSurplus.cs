@@ -1,8 +1,9 @@
 using HarmonyLib;
-using RimRound.Utilities;
+using Physique.Core;
+using Physique.Utilities;
 using Verse;
 
-namespace RimRound.Patches
+namespace Physique.Patches
 {
     /// <summary>
     /// Nutrition that doesn't fit in the food need (vanilla throws it away) is stored as body weight.
@@ -17,11 +18,11 @@ namespace RimRound.Patches
             if (__result <= 0f || !WeightUtility.CanHaveWeight(ingester))
                 return;
 
-            float surplus = __result - (ingester.needs.food.MaxLevel - ingester.needs.food.CurLevel);
+            float surplus = BodyMath.SurplusNutrition(__result, ingester.needs.food.CurLevel, ingester.needs.food.MaxLevel);
             if (surplus <= 0f)
                 return;
 
-            WeightUtility.ChangeWeight(ingester, surplus * RimRoundMod.Settings.kgPerNutrition * RimRoundMod.Settings.weightGainMultiplier);
+            WeightUtility.ChangeWeight(ingester, surplus * PhysiqueMod.Settings.kgPerNutrition * PhysiqueMod.Settings.weightGainMultiplier);
         }
     }
 }

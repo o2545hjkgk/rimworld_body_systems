@@ -1,6 +1,6 @@
 using Verse;
 
-namespace RimRound.Hediffs
+namespace Physique.Hediffs
 {
     public class HediffDef_Weight : DefModExtension
     {

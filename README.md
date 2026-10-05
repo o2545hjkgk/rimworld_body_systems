@@ -8,7 +8,7 @@ Currently implemented:
 - **Weight opinion.** Each pawn gets one of eight opinion traits, from *Hate* to *Fanatical*. Each trait comes with a moodlet that depends on the pawn's current weight.
 - **Weight gain and loss.** Food eaten past a full food bar is stored as weight. A pawn that goes hungry while carrying fat burns it instead of starving.
 
-The heaviest stage is currently **Gigantic II**. Weight is capped at 989 kg by `maxSeverity` in `1.6/Defs/HediffDefs/RimRound_Weight.xml`; lower that value to lower the cap.
+The heaviest stage is currently **Gigantic II**. Weight is capped at 989 kg by `maxSeverity` in `1.6/Defs/HediffDefs/Physique_Weight.xml`; lower that value to lower the cap.
 
 ## How weight is calculated
 
@@ -62,22 +62,28 @@ What drives these numbers:
 - **Gain.** Vanilla throws away nutrition that doesn't fit in the food bar, for example eating a 0.9-nutrition meal when only 30% hungry. That surplus becomes weight.
 - **Loss.** While a pawn's food bar is below the *Hungry* threshold and they weigh more than `fatReserveFloor` (60 kg adult-equivalent), their body burns fat to cover the hunger. They stay hungry but don't starve, and they lose weight at their normal metabolic rate. At or below the floor, vanilla starvation applies and they keep losing weight while starving.
 
-Settings (Options → Mod settings → RimRound; to be renamed to Physique in roadmap Phase 0):
+Settings (Options → Mod settings → Physique):
 
 - **Kilograms per nutrition**: default 1.0, RimRound's original pacing. About 0.2 is physiologically realistic: 1 nutrition is roughly 1,500 kcal and 1 kg of fat roughly 7,700 kcal.
 - **Gain / loss multipliers**, **show pounds**, and **weight opinion moodlets** on or off.
 
-Dev mode adds *RimRound* debug actions: add or remove 10 kg, add 100 kg, and cycle a pawn's weight opinion.
+Dev mode adds *Physique* debug actions: add or remove 10 kg, add 100 kg, and cycle a pawn's weight opinion.
 
 ## Building
 
-The C# project is `Source/RimRoundCore`. It uses NuGet reference packages, so it builds without a RimWorld install:
+The C# project is `Source/Physique`. It uses NuGet reference packages, so it builds without a RimWorld install:
 
 ```
-dotnet build Source/RimRoundCore -c Release
+dotnet build Source/Physique -c Release
 ```
 
-The output goes to `1.6/Assemblies/RimRound.dll`. Harmony is required at runtime.
+The output goes to `1.6/Assemblies/Physique.dll`. Harmony is required at runtime.
+
+Formulas that don't need the game live in `Source/Physique/Core/BodyMath.cs`. `Source/Physique.Tests` covers them, along with consistency checks on the XML defs (stage order, the weight cap, one mood stage per weight band):
+
+```
+dotnet test Source/Physique.Tests
+```
 
 ## License
 

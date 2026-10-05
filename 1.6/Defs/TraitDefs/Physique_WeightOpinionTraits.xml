@@ -2,7 +2,7 @@
 
 <Defs>
   <TraitDef>
-    <defName>RR_WeightOpinion_Hate_Trait</defName>
+    <defName>Physique_WeightOpinion_Hate</defName>
     <commonality>0</commonality>
     <degreeDatas>
       <li>
@@ -11,12 +11,12 @@
       </li>
     </degreeDatas>
     <exclusionTags>
-      <li>RR_Trait_WeightOpinion</li>
+      <li>Physique_WeightOpinion</li>
     </exclusionTags>
   </TraitDef>
 
   <TraitDef>
-    <defName>RR_WeightOpinion_Dislike_Trait</defName>
+    <defName>Physique_WeightOpinion_Dislike</defName>
     <commonality>0</commonality>
     <degreeDatas>
       <li>
@@ -25,12 +25,12 @@
       </li>
     </degreeDatas>
     <exclusionTags>
-      <li>RR_Trait_WeightOpinion</li>
+      <li>Physique_WeightOpinion</li>
     </exclusionTags>
   </TraitDef>
   
     <TraitDef>
-    <defName>RR_WeightOpinion_NeutralMinus_Trait</defName>
+    <defName>Physique_WeightOpinion_NeutralMinus</defName>
     <commonality>0</commonality>
     <degreeDatas>
       <li>
@@ -39,12 +39,12 @@
       </li>
     </degreeDatas>
     <exclusionTags>
-      <li>RR_Trait_WeightOpinion</li>
+      <li>Physique_WeightOpinion</li>
     </exclusionTags>
   </TraitDef>
   
     <TraitDef>
-    <defName>RR_WeightOpinion_Neutral_Trait</defName>
+    <defName>Physique_WeightOpinion_Neutral</defName>
     <commonality>0</commonality>
     <degreeDatas>
       <li>
@@ -53,12 +53,12 @@
       </li>
     </degreeDatas>
     <exclusionTags>
-      <li>RR_Trait_WeightOpinion</li>
+      <li>Physique_WeightOpinion</li>
     </exclusionTags>
   </TraitDef>
   
     <TraitDef>
-    <defName>RR_WeightOpinion_NeutralPlus_Trait</defName>
+    <defName>Physique_WeightOpinion_NeutralPlus</defName>
     <commonality>0</commonality>
     <degreeDatas>
       <li>
@@ -67,12 +67,12 @@
       </li>
     </degreeDatas>
     <exclusionTags>
-      <li>RR_Trait_WeightOpinion</li>
+      <li>Physique_WeightOpinion</li>
     </exclusionTags>
   </TraitDef>
   
     <TraitDef>
-    <defName>RR_WeightOpinion_Like_Trait</defName>
+    <defName>Physique_WeightOpinion_Like</defName>
     <commonality>0</commonality>
     <degreeDatas>
       <li>
@@ -81,12 +81,12 @@
       </li>
     </degreeDatas>
     <exclusionTags>
-      <li>RR_Trait_WeightOpinion</li>
+      <li>Physique_WeightOpinion</li>
     </exclusionTags>
   </TraitDef>
   
     <TraitDef>
-    <defName>RR_WeightOpinion_Love_Trait</defName>
+    <defName>Physique_WeightOpinion_Love</defName>
     <commonality>0</commonality>
     <degreeDatas>
       <li>
@@ -95,12 +95,12 @@
       </li>
     </degreeDatas>
     <exclusionTags>
-      <li>RR_Trait_WeightOpinion</li>
+      <li>Physique_WeightOpinion</li>
     </exclusionTags>
   </TraitDef>
   
   <TraitDef>
-    <defName>RR_WeightOpinion_Fanatical_Trait</defName>
+    <defName>Physique_WeightOpinion_Fanatical</defName>
     <commonality>0</commonality>
     <degreeDatas>
       <li>
@@ -109,7 +109,7 @@
       </li>
     </degreeDatas>
     <exclusionTags>
-      <li>RR_Trait_WeightOpinion</li>
+      <li>Physique_WeightOpinion</li>
     </exclusionTags>
   </TraitDef>
 </Defs>

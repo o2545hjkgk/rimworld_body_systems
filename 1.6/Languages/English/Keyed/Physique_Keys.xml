@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+	<Physique_Settings_KgPerNutrition>Kilograms per nutrition: {0}</Physique_Settings_KgPerNutrition>
+	<Physique_Settings_KgPerNutrition_Tip>How much body weight one unit of nutrition is worth, both when surplus food is stored and when fat is burned off while hungry.\n\nAbout 0.2 is physiologically realistic (1 nutrition is roughly 1,500 kcal, 1 kg of fat roughly 7,700 kcal). 1.0 matches the pacing of RimRound, which this mod is based on.</Physique_Settings_KgPerNutrition_Tip>
+	<Physique_Settings_GainMultiplier>Weight gain multiplier: {0}</Physique_Settings_GainMultiplier>
+	<Physique_Settings_LossMultiplier>Weight loss multiplier: {0}</Physique_Settings_LossMultiplier>
+	<Physique_Settings_UsePounds>Show weight in pounds</Physique_Settings_UsePounds>
+	<Physique_Settings_OpinionMoodlets>Weight opinion moodlets</Physique_Settings_OpinionMoodlets>
+</LanguageData>

@@ -2,10 +2,10 @@
 	<!--Author for lower weights: rngsusd#9608-->
 	<!--Thoughts for hate opinions-->
 	<ThoughtDef>
-		<defName>RR_WeightOpinion_Hate</defName>
-		<workerClass>RimRound.AI.ThoughtWorker_WeightOpinion</workerClass>
+		<defName>Physique_WeightOpinionMood_Hate</defName>
+		<workerClass>Physique.AI.ThoughtWorker_WeightOpinion</workerClass>
 		<requiredTraits>
-			<li>RR_WeightOpinion_Hate_Trait</li>
+			<li>Physique_WeightOpinion_Hate</li>
 		</requiredTraits>
 		<stages>
 		  <!--88lb-->
@@ -124,10 +124,10 @@
 	  
 	  <!--Thoughts for dislike opinions-->
 	  <ThoughtDef>
-		<defName>RR_WeightOpinion_Dislike</defName>
-		<workerClass>RimRound.AI.ThoughtWorker_WeightOpinion</workerClass>
+		<defName>Physique_WeightOpinionMood_Dislike</defName>
+		<workerClass>Physique.AI.ThoughtWorker_WeightOpinion</workerClass>
 		<requiredTraits>
-			<li>RR_WeightOpinion_Dislike_Trait</li>
+			<li>Physique_WeightOpinion_Dislike</li>
 		</requiredTraits>
 		<stages>
 		  <!--88lb-->
@@ -245,10 +245,10 @@
 	  
 	  <!--Thoughts for neutral- opinions-->
 	  <ThoughtDef>
-		<defName>RR_WeightOpinion_NeutralMinus</defName>
-		<workerClass>RimRound.AI.ThoughtWorker_WeightOpinion</workerClass>
+		<defName>Physique_WeightOpinionMood_NeutralMinus</defName>
+		<workerClass>Physique.AI.ThoughtWorker_WeightOpinion</workerClass>
 		<requiredTraits>
-			<li>RR_WeightOpinion_NeutralMinus_Trait</li>
+			<li>Physique_WeightOpinion_NeutralMinus</li>
 		</requiredTraits>
 		<stages>
 		  <!--88lb-->
@@ -366,10 +366,10 @@
 	  
 	  <!--Thoughts for neutral opinions-->
 	  <ThoughtDef>
-		<defName>RR_WeightOpinion_Neutral</defName>
-		<workerClass>RimRound.AI.ThoughtWorker_WeightOpinion</workerClass>
+		<defName>Physique_WeightOpinionMood_Neutral</defName>
+		<workerClass>Physique.AI.ThoughtWorker_WeightOpinion</workerClass>
 		<requiredTraits>
-			<li>RR_WeightOpinion_Neutral_Trait</li>
+			<li>Physique_WeightOpinion_Neutral</li>
 		</requiredTraits>
 		<stages>
 		  <!--88lb-->
@@ -487,10 +487,10 @@
 	  
 	  <!--Thoughts for neutral+ opinions-->
 	  <ThoughtDef>
-		<defName>RR_WeightOpinion_NeutralPlus</defName>
-		<workerClass>RimRound.AI.ThoughtWorker_WeightOpinion</workerClass>
+		<defName>Physique_WeightOpinionMood_NeutralPlus</defName>
+		<workerClass>Physique.AI.ThoughtWorker_WeightOpinion</workerClass>
 		<requiredTraits>
-			<li>RR_WeightOpinion_NeutralPlus_Trait</li>
+			<li>Physique_WeightOpinion_NeutralPlus</li>
 		</requiredTraits>
 		<stages>
 		  <!--88lb-->
@@ -608,10 +608,10 @@
 	  
 	  <!--Thoughts for like opinions-->
 	  <ThoughtDef>
-		<defName>RR_WeightOpinion_Like</defName>
-		<workerClass>RimRound.AI.ThoughtWorker_WeightOpinion</workerClass>
+		<defName>Physique_WeightOpinionMood_Like</defName>
+		<workerClass>Physique.AI.ThoughtWorker_WeightOpinion</workerClass>
 		<requiredTraits>
-			<li>RR_WeightOpinion_Like_Trait</li>
+			<li>Physique_WeightOpinion_Like</li>
 		</requiredTraits>
 		<stages>
 		  <!--88lb-->
@@ -729,10 +729,10 @@
 	  
 	  <!--Thoughts for love opinions-->
 	  <ThoughtDef>
-		<defName>RR_WeightOpinion_Love</defName>
-		<workerClass>RimRound.AI.ThoughtWorker_WeightOpinion</workerClass>
+		<defName>Physique_WeightOpinionMood_Love</defName>
+		<workerClass>Physique.AI.ThoughtWorker_WeightOpinion</workerClass>
 		<requiredTraits>
-			<li>RR_WeightOpinion_Love_Trait</li>
+			<li>Physique_WeightOpinion_Love</li>
 		</requiredTraits>
 		<stages>
 		  <!--88lb-->
@@ -850,10 +850,10 @@
 	  
 	  <!--Thoughts for fanatical opinions-->
 	  <ThoughtDef>
-		<defName>RR_WeightOpinion_Fanatical</defName>
-		<workerClass>RimRound.AI.ThoughtWorker_WeightOpinion</workerClass>
+		<defName>Physique_WeightOpinionMood_Fanatical</defName>
+		<workerClass>Physique.AI.ThoughtWorker_WeightOpinion</workerClass>
 		<requiredTraits>
-			<li>RR_WeightOpinion_Fanatical_Trait</li>
+			<li>Physique_WeightOpinion_Fanatical</li>
 		</requiredTraits>
 		<stages>
 		  <!--88lb-->
