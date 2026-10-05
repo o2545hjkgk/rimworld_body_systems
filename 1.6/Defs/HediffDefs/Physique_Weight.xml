@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<Defs>
+	<HediffDef>
+		<defName>Physique_Weight</defName>
+		<label>weight</label>
+		<defaultLabelColor>(1,0,0.5)</defaultLabelColor>
+		<labelNoun>weight</labelNoun>
+		<description>This person's body weight: their frame, muscle and fat together. Fat is gained by eating more than they burn and lost by going hungry. Once fat runs out, starvation eats into muscle.
+
+Stages follow BMI. Until height is modelled, every adult is treated as 1.75 m tall, and children and other races are judged relative to their body size.</description>
+		<hediffClass>Physique.Hediffs.Hediff_Weight</hediffClass>
+		<isBad>false</isBad>
+		<everCurableByItem>false</everCurableByItem>
+		<!-- Severity is BMI, recalculated from body fat and muscle whenever they change. -->
+		<initialSeverity>22</initialSeverity>
+		<minSeverity>1</minSeverity>
+
+		<modExtensions>
+			<li Class="Physique.Hediffs.BodyModelExtension">
+				<!-- Adult-equivalent values for body size 1. -->
+				<referenceHeightCm>175</referenceHeightCm>
+				<!-- Bone, organs, blood, skin: everything but skeletal muscle and fat. -->
+				<frameKg>30</frameKg>
+				<baselineMuscleKg>26</baselineMuscleKg>
+				<!-- Fat the body won't burn for energy; below it, starvation wastes muscle. -->
+				<essentialFatKg>3</essentialFatKg>
+			</li>
+		</modExtensions>
+
+		<stages>
+			<!-- BMI 0-13, 0-40 kg at 1.75 m -->
+			<li>
+				<label>Emaciated</label>
+				<hungerRateFactor>0.80</hungerRateFactor>
+				<restFallFactor>1.15</restFallFactor>
+				<fertilityFactor>0.30</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.75</postFactor></li>
+					<li><capacity>Manipulation</capacity><postFactor>0.85</postFactor></li>
+					<li><capacity>BloodPumping</capacity><postFactor>0.90</postFactor></li>
+					<li><capacity>Consciousness</capacity><postFactor>0.90</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.25</ImmunityGainSpeed>
+					<ComfyTemperatureMin>8</ComfyTemperatureMin>
+				</statOffsets>
+			</li>
+			<!-- BMI 13-16, 40-49 kg at 1.75 m -->
+			<li>
+				<minSeverity>13</minSeverity>
+				<label>Very Thin</label>
+				<hungerRateFactor>0.85</hungerRateFactor>
+				<restFallFactor>1.05</restFallFactor>
+				<fertilityFactor>0.60</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.90</postFactor></li>
+					<li><capacity>Manipulation</capacity><postFactor>0.95</postFactor></li>
+					<li><capacity>BloodPumping</capacity><postFactor>0.95</postFactor></li>
+					<li><capacity>Consciousness</capacity><postFactor>0.95</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.15</ImmunityGainSpeed>
+					<ComfyTemperatureMin>5</ComfyTemperatureMin>
+				</statOffsets>
+			</li>
+			<!-- BMI 16-18.5, 49-57 kg at 1.75 m -->
+			<li>
+				<minSeverity>16</minSeverity>
+				<label>Thin</label>
+				<hungerRateFactor>0.95</hungerRateFactor>
+				<fertilityFactor>0.90</fertilityFactor>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.05</ImmunityGainSpeed>
+					<ComfyTemperatureMin>2</ComfyTemperatureMin>
+				</statOffsets>
+			</li>
+			<!-- BMI 18.5-25, 57-77 kg at 1.75 m -->
+			<li>
+				<minSeverity>18.5</minSeverity>
+				<label>Thick</label>
+			</li>
+			<!-- BMI 25-30, 77-92 kg at 1.75 m -->
+			<li>
+				<minSeverity>25</minSeverity>
+				<label>Chunky</label>
+				<hungerRateFactor>1.05</hungerRateFactor>
+				<statOffsets>
+					<ComfyTemperatureMin>-1</ComfyTemperatureMin>
+					<ComfyTemperatureMax>-1</ComfyTemperatureMax>
+				</statOffsets>
+			</li>
+			<!-- BMI 30-37.5, 92-115 kg at 1.75 m -->
+			<li>
+				<minSeverity>30</minSeverity>
+				<label>Chubby</label>
+				<hungerRateFactor>1.10</hungerRateFactor>
+				<restFallFactor>1.03</restFallFactor>
+				<fertilityFactor>0.95</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.95</postFactor></li>
+					<li><capacity>Breathing</capacity><postFactor>0.97</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ComfyTemperatureMin>-2</ComfyTemperatureMin>
+					<ComfyTemperatureMax>-2</ComfyTemperatureMax>
+				</statOffsets>
+			</li>
+			<!-- BMI 37.5-47.5, 115-145 kg at 1.75 m -->
+			<li>
+				<minSeverity>37.5</minSeverity>
+				<label>Corpulent</label>
+				<hungerRateFactor>1.20</hungerRateFactor>
+				<restFallFactor>1.06</restFallFactor>
+				<fertilityFactor>0.90</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.90</postFactor></li>
+					<li><capacity>Manipulation</capacity><postFactor>0.98</postFactor></li>
+					<li><capacity>Breathing</capacity><postFactor>0.94</postFactor></li>
+					<li><capacity>BloodPumping</capacity><postFactor>0.97</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.03</ImmunityGainSpeed>
+					<ComfyTemperatureMin>-3</ComfyTemperatureMin>
+					<ComfyTemperatureMax>-3</ComfyTemperatureMax>
+				</statOffsets>
+			</li>
+			<!-- BMI 47.5-59, 145-181 kg at 1.75 m -->
+			<li>
+				<minSeverity>47.5</minSeverity>
+				<label>Fat</label>
+				<hungerRateFactor>1.35</hungerRateFactor>
+				<restFallFactor>1.10</restFallFactor>
+				<fertilityFactor>0.85</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.82</postFactor></li>
+					<li><capacity>Manipulation</capacity><postFactor>0.95</postFactor></li>
+					<li><capacity>Breathing</capacity><postFactor>0.90</postFactor></li>
+					<li><capacity>BloodPumping</capacity><postFactor>0.94</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.05</ImmunityGainSpeed>
+					<ComfyTemperatureMin>-4</ComfyTemperatureMin>
+					<ComfyTemperatureMax>-4</ComfyTemperatureMax>
+				</statOffsets>
+			</li>
+			<!-- BMI 59-73.5, 181-225 kg at 1.75 m -->
+			<li>
+				<minSeverity>59</minSeverity>
+				<label>Obese</label>
+				<hungerRateFactor>1.50</hungerRateFactor>
+				<restFallFactor>1.14</restFallFactor>
+				<fertilityFactor>0.80</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.72</postFactor></li>
+					<li><capacity>Manipulation</capacity><postFactor>0.92</postFactor></li>
+					<li><capacity>Breathing</capacity><postFactor>0.86</postFactor></li>
+					<li><capacity>BloodPumping</capacity><postFactor>0.91</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.08</ImmunityGainSpeed>
+					<ComfyTemperatureMin>-5</ComfyTemperatureMin>
+					<ComfyTemperatureMax>-5</ComfyTemperatureMax>
+				</statOffsets>
+			</li>
+			<!-- BMI 73.5-83.5, 225-256 kg at 1.75 m -->
+			<li>
+				<minSeverity>73.5</minSeverity>
+				<label>Morbidly Obese</label>
+				<hungerRateFactor>1.70</hungerRateFactor>
+				<restFallFactor>1.18</restFallFactor>
+				<fertilityFactor>0.70</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.60</postFactor></li>
+					<li><capacity>Manipulation</capacity><postFactor>0.88</postFactor></li>
+					<li><capacity>Breathing</capacity><postFactor>0.82</postFactor></li>
+					<li><capacity>BloodPumping</capacity><postFactor>0.88</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.10</ImmunityGainSpeed>
+					<ComfyTemperatureMin>-6</ComfyTemperatureMin>
+					<ComfyTemperatureMax>-6</ComfyTemperatureMax>
+				</statOffsets>
+			</li>
+			<!-- BMI 83.5-100, 256-306 kg at 1.75 m -->
+			<li>
+				<minSeverity>83.5</minSeverity>
+				<label>Morbidly Obese II</label>
+				<hungerRateFactor>1.80</hungerRateFactor>
+				<restFallFactor>1.22</restFallFactor>
+				<fertilityFactor>0.65</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.50</postFactor></li>
+					<li><capacity>Manipulation</capacity><postFactor>0.84</postFactor></li>
+					<li><capacity>Breathing</capacity><postFactor>0.78</postFactor></li>
+					<li><capacity>BloodPumping</capacity><postFactor>0.85</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.12</ImmunityGainSpeed>
+					<ComfyTemperatureMin>-7</ComfyTemperatureMin>
+					<ComfyTemperatureMax>-7</ComfyTemperatureMax>
+				</statOffsets>
+			</li>
+			<!-- BMI 100-122.5, 306-375 kg at 1.75 m -->
+			<li>
+				<minSeverity>100</minSeverity>
+				<label>Lardy</label>
+				<hungerRateFactor>2.10</hungerRateFactor>
+				<restFallFactor>1.27</restFallFactor>
+				<fertilityFactor>0.55</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.38</postFactor></li>
+					<li><capacity>Manipulation</capacity><postFactor>0.78</postFactor></li>
+					<li><capacity>Breathing</capacity><postFactor>0.72</postFactor></li>
+					<li><capacity>BloodPumping</capacity><postFactor>0.80</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.15</ImmunityGainSpeed>
+					<ComfyTemperatureMin>-8</ComfyTemperatureMin>
+					<ComfyTemperatureMax>-8</ComfyTemperatureMax>
+				</statOffsets>
+			</li>
+			<!-- BMI 122.5-148.5, 375-455 kg at 1.75 m -->
+			<li>
+				<minSeverity>122.5</minSeverity>
+				<label>Lardy II</label>
+				<hungerRateFactor>2.40</hungerRateFactor>
+				<restFallFactor>1.32</restFallFactor>
+				<fertilityFactor>0.45</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.27</postFactor></li>
+					<li><capacity>Manipulation</capacity><postFactor>0.72</postFactor></li>
+					<li><capacity>Breathing</capacity><postFactor>0.66</postFactor></li>
+					<li><capacity>BloodPumping</capacity><postFactor>0.75</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.18</ImmunityGainSpeed>
+					<ComfyTemperatureMin>-9</ComfyTemperatureMin>
+					<ComfyTemperatureMax>-9</ComfyTemperatureMax>
+				</statOffsets>
+			</li>
+			<!-- BMI 148.5-183, 455-560 kg at 1.75 m -->
+			<li>
+				<minSeverity>148.5</minSeverity>
+				<label>Enormous</label>
+				<hungerRateFactor>2.80</hungerRateFactor>
+				<restFallFactor>1.37</restFallFactor>
+				<fertilityFactor>0.35</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.18</postFactor></li>
+					<li><capacity>Manipulation</capacity><postFactor>0.65</postFactor></li>
+					<li><capacity>Breathing</capacity><postFactor>0.60</postFactor></li>
+					<li><capacity>BloodPumping</capacity><postFactor>0.70</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.20</ImmunityGainSpeed>
+					<ComfyTemperatureMin>-10</ComfyTemperatureMin>
+					<ComfyTemperatureMax>-10</ComfyTemperatureMax>
+				</statOffsets>
+			</li>
+			<!-- BMI 183-223.5, 560-684 kg at 1.75 m -->
+			<li>
+				<minSeverity>183</minSeverity>
+				<label>Enormous II</label>
+				<hungerRateFactor>3.30</hungerRateFactor>
+				<restFallFactor>1.42</restFallFactor>
+				<fertilityFactor>0.25</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.12</postFactor></li>
+					<li><capacity>Manipulation</capacity><postFactor>0.58</postFactor></li>
+					<li><capacity>Breathing</capacity><postFactor>0.55</postFactor></li>
+					<li><capacity>BloodPumping</capacity><postFactor>0.65</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.22</ImmunityGainSpeed>
+					<ComfyTemperatureMin>-11</ComfyTemperatureMin>
+					<ComfyTemperatureMax>-11</ComfyTemperatureMax>
+				</statOffsets>
+			</li>
+			<!-- BMI 223.5-269.5, 684-825 kg at 1.75 m -->
+			<li>
+				<minSeverity>223.5</minSeverity>
+				<label>Gigantic</label>
+				<hungerRateFactor>4.00</hungerRateFactor>
+				<restFallFactor>1.46</restFallFactor>
+				<fertilityFactor>0.20</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.06</postFactor></li>
+					<li><capacity>Manipulation</capacity><postFactor>0.50</postFactor></li>
+					<li><capacity>Breathing</capacity><postFactor>0.50</postFactor></li>
+					<li><capacity>BloodPumping</capacity><postFactor>0.60</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.25</ImmunityGainSpeed>
+					<ComfyTemperatureMin>-12</ComfyTemperatureMin>
+					<ComfyTemperatureMax>-12</ComfyTemperatureMax>
+				</statOffsets>
+			</li>
+			<!-- BMI 269.5+, 825+ kg at 1.75 m -->
+			<li>
+				<minSeverity>269.5</minSeverity>
+				<label>Gigantic II</label>
+				<hungerRateFactor>4.60</hungerRateFactor>
+				<restFallFactor>1.50</restFallFactor>
+				<fertilityFactor>0.15</fertilityFactor>
+				<capMods>
+					<li><capacity>Moving</capacity><postFactor>0.00</postFactor></li>
+					<li><capacity>Manipulation</capacity><postFactor>0.42</postFactor></li>
+					<li><capacity>Breathing</capacity><postFactor>0.45</postFactor></li>
+					<li><capacity>BloodPumping</capacity><postFactor>0.55</postFactor></li>
+				</capMods>
+				<statOffsets>
+					<ImmunityGainSpeed>-0.28</ImmunityGainSpeed>
+					<ComfyTemperatureMin>-13</ComfyTemperatureMin>
+					<ComfyTemperatureMax>-13</ComfyTemperatureMax>
+				</statOffsets>
+			</li>
+		</stages>
+	</HediffDef>
+</Defs>
