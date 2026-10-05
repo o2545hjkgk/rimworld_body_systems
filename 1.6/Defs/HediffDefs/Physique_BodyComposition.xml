@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
 	<!--
-		Stored body composition. Both are hidden data hediffs: severity is adult-equivalent kg
-		(real kg = severity × body size). Weight (Physique_Weight) is derived from them plus the frame.
+		Stored body composition, as hidden data hediffs. Fat and muscle severity is adult-equivalent kg
+		(real kg = severity × body size); height severity is adult height in cm. Weight (Physique_Weight)
+		is derived from them, with the frame scaled by height.
 	-->
 
 	<HediffDef>
@@ -14,8 +15,8 @@
 		<everCurableByItem>false</everCurableByItem>
 		<initialSeverity>14</initialSeverity>
 		<minSeverity>0.1</minSeverity>
-		<!-- Weight cap. With the 30 kg frame and 26 kg baseline muscle this keeps weight just under 990 kg (where Titanic used to begin). -->
-		<maxSeverity>930</maxSeverity>
+		<!-- Safety limit only; the real weight cap is maxBmi on Physique_Weight. -->
+		<maxSeverity>2000</maxSeverity>
 	</HediffDef>
 
 	<HediffDef>
@@ -26,8 +27,20 @@
 		<isBad>false</isBad>
 		<everCurableByItem>false</everCurableByItem>
 		<initialSeverity>26</initialSeverity>
-		<!-- Severe wasting: with a 30 kg frame and essential fat this is about BMI 12.4, Emaciated. -->
+		<!-- Severe wasting: for a 1.75 m adult with essential fat this is about BMI 12.4, Emaciated. -->
 		<minSeverity>5</minSeverity>
 		<maxSeverity>60</maxSeverity>
+	</HediffDef>
+
+	<HediffDef>
+		<defName>Physique_Height</defName>
+		<label>height</label>
+		<description>How tall this person is, or will be once fully grown. Malnutrition while growing up permanently lowers it.</description>
+		<hediffClass>Physique.Hediffs.Hediff_Height</hediffClass>
+		<isBad>false</isBad>
+		<everCurableByItem>false</everCurableByItem>
+		<initialSeverity>175</initialSeverity>
+		<minSeverity>100</minSeverity>
+		<maxSeverity>250</maxSeverity>
 	</HediffDef>
 </Defs>

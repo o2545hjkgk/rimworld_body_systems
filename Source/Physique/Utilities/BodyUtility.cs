@@ -6,8 +6,9 @@ using Verse;
 namespace Physique.Utilities
 {
     /// <summary>
-    /// Pawn-facing body helpers. Fat and muscle are stored in hidden hediffs as adult-equivalent kg;
-    /// the visible weight hediff's severity is the resulting BMI. The formulas live in <see cref="BodyMath"/>.
+    /// Pawn-facing body helpers. Height (adult cm), muscle and fat (adult-equivalent kg) are stored in
+    /// hidden hediffs; the frame follows from height, and the visible weight hediff's severity is the
+    /// resulting BMI. The formulas live in <see cref="BodyMath"/>.
     /// </summary>
     public static class BodyUtility
     {
@@ -24,16 +25,38 @@ namespace Physique.Utilities
 
         public static Hediff MuscleHediff(this Pawn pawn) => pawn?.health?.hediffSet?.GetFirstHediffOfDef(Defs.HediffDefOf.Physique_Muscle);
 
-        /// <returns>The pawn's adult-equivalent body composition, or null if it has none.</returns>
+        public static Hediff HeightHediff(this Pawn pawn) => pawn?.health?.hediffSet?.GetFirstHediffOfDef(Defs.HediffDefOf.Physique_Height);
+
+        /// <returns>
+        /// The pawn's adult-equivalent body composition (as if fully grown, at body size 1), or null if it has none.
+        /// </returns>
         public static BodyComposition? Composition(this Pawn pawn)
         {
             Hediff fat = pawn.FatHediff();
             Hediff muscle = pawn.MuscleHediff();
-            if (fat is null || muscle is null)
+            Hediff height = pawn.HeightHediff();
+            if (fat is null || muscle is null || height is null)
                 return null;
 
-            BodyModelExtension model = Model;
-            return new BodyComposition(model.referenceHeightCm, model.frameKg, muscle.Severity, fat.Severity);
+            return new BodyComposition(height.Severity, FrameKg(height.Severity), muscle.Severity, fat.Severity);
+        }
+
+        /// <summary>Lean frame mass for an adult of this height.</summary>
+        public static float FrameKg(float heightCm) => Model.frameKg * BodyMath.MassScaleForHeight(heightCm, Model.referenceHeightCm);
+
+        /// <summary>Essential fat for an adult of this height.</summary>
+        public static float EssentialFatKg(float heightCm) => Model.essentialFatKg * BodyMath.MassScaleForHeight(heightCm, Model.referenceHeightCm);
+
+        /// <returns>How tall the pawn is right now, in cm: its adult height, scaled for age and race. 0 if it has no height.</returns>
+        public static float CurrentHeightCm(this Pawn pawn)
+        {
+            Hediff height = pawn.HeightHediff();
+            if (height is null)
+                return 0f;
+
+            return height.Severity
+                * BodyMath.GrowthFraction(pawn.ageTracker.AgeBiologicalYearsFloat, pawn.ageTracker.AdultMinAge)
+                * BodyMath.RaceHeightScale(pawn.RaceProps.baseBodySize);
         }
 
         /// <returns>The pawn's real weight in kg, or 0 if it has no body composition.</returns>
@@ -43,8 +66,19 @@ namespace Physique.Utilities
             return body is null ? 0f : BodyMath.ToRealKilos(body.Value.WeightKg, pawn.BodySize);
         }
 
-        /// <summary>Adds (or, if negative, removes) <paramref name="kilos"/> of real body fat.</summary>
-        public static void ChangeFat(Pawn pawn, float kilos) => ChangeStore(pawn, pawn.FatHediff(), kilos);
+        /// <summary>
+        /// Adds (or, if negative, removes) <paramref name="kilos"/> of real body fat, never past the maxBmi weight cap.
+        /// </summary>
+        public static void ChangeFat(Pawn pawn, float kilos)
+        {
+            Hediff fat = pawn.FatHediff();
+            if (kilos > 0f && fat != null && pawn.Composition() is BodyComposition body)
+            {
+                float roomKg = BodyMath.MaxFatKg(body.HeightCm, body.FrameKg, body.MuscleKg, Model.maxBmi) - body.FatKg;
+                kilos = System.Math.Min(kilos, BodyMath.ToRealKilos(System.Math.Max(0f, roomKg), pawn.BodySize));
+            }
+            ChangeStore(pawn, fat, kilos);
+        }
 
         /// <summary>Adds (or, if negative, removes) <paramref name="kilos"/> of real muscle.</summary>
         public static void ChangeMuscle(Pawn pawn, float kilos) => ChangeStore(pawn, pawn.MuscleHediff(), kilos);
@@ -76,15 +110,24 @@ namespace Physique.Utilities
             if (!CanHaveBody(pawn))
                 return;
 
+            if (pawn.HeightHediff() is null)
+            {
+                float adultHeightCm = RandomAdultHeightCm(pawn);
+                var height = (Hediff_Height)AddIfMissing(pawn, Defs.HediffDefOf.Physique_Height, adultHeightCm);
+                height.geneticHeightCm = adultHeightCm;
+            }
+
             if (pawn.FatHediff() is null || pawn.MuscleHediff() is null)
             {
-                BodyModelExtension model = Model;
+                float heightCm = pawn.HeightHediff().Severity;
+                float massScale = BodyMath.MassScaleForHeight(heightCm, Model.referenceHeightCm);
                 BodyComposition start = BodyMath.StartingComposition(
-                    model.referenceHeightCm,
-                    model.frameKg,
-                    model.baselineMuscleKg + Rand.Range(-3f, 3f),
-                    model.essentialFatKg,
-                    StartingWeightUtility.RandomStartingAdultKilos(pawn));
+                    heightCm,
+                    FrameKg(heightCm),
+                    (Model.baselineMuscleKg + Rand.Range(-3f, 3f)) * massScale,
+                    EssentialFatKg(heightCm),
+                    StartingWeightUtility.RandomStartingBmi(pawn),
+                    Model.maxBmi);
 
                 AddIfMissing(pawn, Defs.HediffDefOf.Physique_Muscle, start.MuscleKg);
                 AddIfMissing(pawn, Defs.HediffDefOf.Physique_Fat, start.FatKg);
@@ -94,14 +137,31 @@ namespace Physique.Utilities
             UpdateWeight(pawn);
         }
 
-        static void AddIfMissing(Pawn pawn, HediffDef def, float severity)
+        static float RandomAdultHeightCm(Pawn pawn)
         {
-            if (pawn.health.hediffSet.GetFirstHediffOfDef(def) != null)
-                return;
+            BodyModelExtension model = Model;
+            float z = Rand.Gaussian(0f, 1f);
+            switch (pawn.gender)
+            {
+                case Gender.Male:
+                    return BodyMath.AdultHeightCm(model.maleHeightCm, model.maleHeightSdCm, z);
+                case Gender.Female:
+                    return BodyMath.AdultHeightCm(model.femaleHeightCm, model.femaleHeightSdCm, z);
+                default:
+                    return BodyMath.AdultHeightCm((model.maleHeightCm + model.femaleHeightCm) / 2f, (model.maleHeightSdCm + model.femaleHeightSdCm) / 2f, z);
+            }
+        }
+
+        static Hediff AddIfMissing(Pawn pawn, HediffDef def, float severity)
+        {
+            Hediff existing = pawn.health.hediffSet.GetFirstHediffOfDef(def);
+            if (existing != null)
+                return existing;
 
             Hediff hediff = HediffMaker.MakeHediff(def, pawn);
             hediff.Severity = severity;
             pawn.health.AddHediff(hediff);
+            return hediff;
         }
     }
 }

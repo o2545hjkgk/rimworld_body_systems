@@ -33,12 +33,12 @@ namespace Physique.Tests
 
         static float StageMin(XElement stage) => (float?)stage.Element("minSeverity") ?? 0f;
 
-        /// <summary>Weight stage a pawn of this adult-equivalent composition would be in.</summary>
-        static string StageFor(float muscleKg, float fatKg)
-        {
-            float bmi = new BodyComposition(ModelValue("referenceHeightCm"), ModelValue("frameKg"), muscleKg, fatKg).Bmi;
-            return (string)Weight.Element("stages").Elements("li").Last(s => bmi >= StageMin(s)).Element("label");
-        }
+        static string StageForBmi(float bmi) =>
+            (string)Weight.Element("stages").Elements("li").Last(s => bmi >= StageMin(s)).Element("label");
+
+        /// <summary>Weight stage a reference-height adult of this composition would be in.</summary>
+        static string StageFor(float muscleKg, float fatKg) =>
+            StageForBmi(new BodyComposition(ModelValue("referenceHeightCm"), ModelValue("frameKg"), muscleKg, fatKg).Bmi);
 
         [Fact]
         public void WeightStagesAscendAndEndAtGiganticII()
@@ -53,13 +53,33 @@ namespace Physique.Tests
         }
 
         [Fact]
-        public void FatCapKeepsWeightInsideGiganticIIAndBelowTitanic()
+        public void BmiCapIsInsideGiganticIIAndBelowTitanic()
         {
-            float maxFat = (float)Fat.Element("maxSeverity");
-            float maxWeight = ModelValue("frameKg") + ModelValue("baselineMuscleKg") + maxFat;
+            float maxBmi = ModelValue("maxBmi");
+            Assert.Equal("Gigantic II", StageForBmi(maxBmi));
+            Assert.True(BodyMath.WeightForBmi(maxBmi, ModelValue("referenceHeightCm")) < 990f, "Cap must stay below where Titanic began.");
+        }
 
-            Assert.Equal("Gigantic II", StageFor(ModelValue("baselineMuscleKg"), maxFat));
-            Assert.True(maxWeight < 990f, "Cap must stay below where Titanic began.");
+        [Theory]
+        [InlineData(154f)]
+        [InlineData(196f)]
+        public void EveryHeightCanReachGiganticIIWithinTheFatSafetyLimit(float heightCm)
+        {
+            float scale = BodyMath.MassScaleForHeight(heightCm, ModelValue("referenceHeightCm"));
+            float maxFat = BodyMath.MaxFatKg(heightCm, ModelValue("frameKg") * scale, ModelValue("baselineMuscleKg") * scale, ModelValue("maxBmi"));
+            Assert.True(maxFat < (float)Fat.Element("maxSeverity"), "The fat hediff's safety limit must not cut in before the BMI cap.");
+        }
+
+        [Fact]
+        public void HeightDistributionsFitTheHeightLimits()
+        {
+            XElement height = HediffDef("Physique_BodyComposition.xml", "Physique_Height");
+            foreach (string sex in new[] { "male", "female" })
+            {
+                float mean = ModelValue(sex + "HeightCm"), sd = ModelValue(sex + "HeightSdCm");
+                Assert.InRange(BodyMath.AdultHeightCm(mean, sd, -3f) - ModelValue("maxStuntingCm"), (float)height.Element("minSeverity"), (float)height.Element("maxSeverity"));
+                Assert.InRange(BodyMath.AdultHeightCm(mean, sd, 3f), (float)height.Element("minSeverity"), (float)height.Element("maxSeverity"));
+            }
         }
 
         [Fact]

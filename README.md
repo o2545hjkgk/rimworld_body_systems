@@ -1,37 +1,43 @@
 # Physique — RimWorld 1.6
 
-Realistic body systems for RimWorld pawns, built from a stripped-down [RimRound](https://github.com/Niwatori401/RimRound) by Niwatori401. See [ROADMAP.md](ROADMAP.md) for planned growth and muscle systems.
+Realistic body systems for RimWorld pawns, built from a stripped-down [RimRound](https://github.com/Niwatori401/RimRound) by Niwatori401. See [ROADMAP.md](ROADMAP.md) for what's next (muscle training, then art).
 
 Currently implemented:
 
-- **Body composition.** Every humanlike pawn with a food need has a frame, muscle and fat. Their total is the pawn's weight, shown in kg (or lbs) on the health tab; hover it for BMI, body fat % and muscle. The weight stage applies realistic effects to movement, manipulation, breathing, blood pumping, hunger, rest, immunity, temperature comfort and fertility.
+- **Body composition.** Every humanlike pawn with a food need has a height, a frame, muscle and fat. Frame, muscle and fat add up to the pawn's weight, shown in kg (or lbs) on the health tab; hover it for height, BMI, body fat % and muscle.
+- **Growth.** Each pawn rolls an adult height (men 175 ± 7 cm, women 162 ± 6.5 cm). Children grow toward it along a human growth curve, and malnutrition while growing up permanently stunts it. The weight stage applies realistic effects to movement, manipulation, breathing, blood pumping, hunger, rest, immunity, temperature comfort and fertility.
 - **Weight opinion.** Each pawn gets one of eight opinion traits, from *Hate* to *Fanatical*. Each trait comes with a moodlet that depends on the pawn's current weight.
 - **Weight gain and loss.** Food eaten past a full food bar is stored as fat. A hungry pawn burns fat instead of starving; once only essential fat is left, starvation wastes muscle.
 
-The heaviest stage is currently **Gigantic II**. Body fat is capped at 930 kg by `maxSeverity` on `Physique_Fat` in `1.6/Defs/HediffDefs/Physique_BodyComposition.xml`, which keeps weight just under 990 kg. Lower that value to lower the cap.
+The heaviest stage is currently **Gigantic II**. Weight is capped at BMI 322 (`maxBmi` in `1.6/Defs/HediffDefs/Physique_Weight.xml`), just under 990 kg at 1.75 m. Lower that value to lower the cap; being a BMI, it applies equally at every height.
 
 ## How weight is calculated
 
-A body is three parts, stored in adult-equivalent kg (as if the pawn were an adult of body size 1):
+A body is four parts. Masses are stored in adult-equivalent kg (as if the pawn were a grown adult of body size 1):
 
 | Part | Stored in | Default | Changes when |
 |---|---|---|---|
-| Frame (bone, organs, blood, skin) | `frameKg` on the weight hediff | 30 kg | fixed for now; Phase 2 derives it from height |
-| Muscle | hidden `Physique_Muscle` hediff | 26 kg ± 3 | starvation wastes it (5 kg minimum); Phase 3 adds training |
-| Fat | hidden `Physique_Fat` hediff | from starting weight | surplus food adds it, hunger burns it |
+| Height | hidden `Physique_Height` hediff (adult height, cm) | rolled by sex, normal distribution clamped to ±3 SD | childhood malnutrition stunts it (up to 12 cm) |
+| Frame (bone, organs, blood, skin) | derived from height | 30 kg at 1.75 m, × (height / 1.75 m)² | follows height |
+| Muscle | hidden `Physique_Muscle` hediff | 26 kg ± 3 at 1.75 m, × (height / 1.75 m)² | starvation wastes it (5 kg minimum); Phase 3 adds training |
+| Fat | hidden `Physique_Fat` hediff | from the starting BMI | surplus food adds it, hunger burns it |
 
 ```
 weight = frame + muscle + fat          real kg = adult-equivalent kg × body size
-BMI    = weight / height²              height = 1.75 m for everyone until Phase 2
+BMI    = weight / adult height²        real height = adult height × growth for age × race size
 ```
 
-The visible **weight** hediff's severity is that BMI, and its stages key off it. Because everything is adult-equivalent, a child or a small race is judged against its own frame, not an adult human's.
+The visible **weight** hediff's severity is that BMI, and its stages key off it. Lean mass scales with height squared, so a tall and a short pawn built the same way land in the same stage. Children are judged as the adults they'll grow into, so a child isn't "emaciated" just for being small.
+
+Children follow a human growth curve (29% of adult height at birth, 55% at 3, 79% at 10, full height at 18), stretched to the race's own adult age. While a pawn is still growing, every day of malnutrition at full severity takes 0.1 cm off their adult height, up to 12 cm. Stunting shows in the weight tooltip.
+
+Starting weights are rolled as BMI, so tall and short pawns start in the same weight classes.
 
 ## Stages
 
 Underweight bands follow the WHO thinness grades (mild < 18.5, severe < 16); below about BMI 13 starvation is life-threatening. Overweight starts at 25 and obesity at 30, as in the WHO scale. Capacity changes are multipliers (`postFactor`), so a pawn with bionic legs keeps proportionally more of their speed. Moving also drops slightly from the Breathing and Blood pumping penalties, because vanilla factors those into it.
 
-| Stage | BMI | Weight @1.75 m (kg) | Hunger | Rest fall | Moving | Manip. | Breathing | Blood pump. | Other |
+| Stage | BMI | Weight at 1.75 m (kg) | Hunger | Rest fall | Moving | Manip. | Breathing | Blood pump. | Other |
 |---|---|---|---|---|---|---|---|---|---|
 | Emaciated | < 13 | < 40 | ×0.80 | ×1.15 | ×0.75 | ×0.85 |  | ×0.90 | Consciousness ×0.90, immunity −25%, comfy min +8 °C, fertility ×0.3 |
 | Very Thin | 13–16 | 40–49 | ×0.85 | ×1.05 | ×0.90 | ×0.95 |  | ×0.95 | Consciousness ×0.95, immunity −15%, comfy min +5 °C, fertility ×0.6 |
@@ -85,7 +91,7 @@ dotnet build Source/Physique -c Release
 
 The output goes to `1.6/Assemblies/Physique.dll`. Harmony is required at runtime.
 
-Formulas that don't need the game live in `Source/Physique/Core/BodyMath.cs`. `Source/Physique.Tests` covers them, along with consistency checks on the XML defs (stage order, the fat cap, fasting and wasting landing in the right stages, one mood stage per weight band):
+Formulas that don't need the game live in `Source/Physique/Core/BodyMath.cs`. `Source/Physique.Tests` covers them, along with consistency checks on the XML defs (stage order, the BMI cap at every height, height limits, fasting and wasting landing in the right stages, one mood stage per weight band):
 
 ```
 dotnet test Source/Physique.Tests

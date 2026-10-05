@@ -40,7 +40,7 @@ namespace Physique.Hediffs
                 food.PercentageThreshHungry,
                 food.CurCategory == HungerCategory.Starving,
                 Severity,
-                BodyUtility.Model.essentialFatKg);
+                BodyUtility.EssentialFatKg(pawn.HeightHediff()?.Severity ?? BodyUtility.Model.referenceHeightCm));
 
             if (response == BodyMath.FastingResponse.None)
                 return;
