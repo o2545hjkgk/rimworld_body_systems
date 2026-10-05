@@ -1,6 +1,8 @@
-# RimRound (body weight core) — RimWorld 1.6
+# Physique — RimWorld 1.6
 
-A stripped-down RimRound with three systems:
+Realistic body systems for RimWorld pawns, built from a stripped-down [RimRound](https://github.com/Niwatori401/RimRound) by Niwatori401. See [ROADMAP.md](ROADMAP.md) for planned growth and muscle systems.
+
+Currently implemented:
 
 - **Weight hediff.** Every humanlike pawn with a food need has a body weight, shown in kg (or lbs) on the health tab. The weight stage applies realistic effects to movement, manipulation, breathing, blood pumping, hunger, rest, immunity, temperature comfort and fertility.
 - **Weight opinion.** Each pawn gets one of eight opinion traits, from *Hate* to *Fanatical*. Each trait comes with a moodlet that depends on the pawn's current weight.
@@ -60,7 +62,7 @@ What drives these numbers:
 - **Gain.** Vanilla throws away nutrition that doesn't fit in the food bar, for example eating a 0.9-nutrition meal when only 30% hungry. That surplus becomes weight.
 - **Loss.** While a pawn's food bar is below the *Hungry* threshold and they weigh more than `fatReserveFloor` (60 kg adult-equivalent), their body burns fat to cover the hunger. They stay hungry but don't starve, and they lose weight at their normal metabolic rate. At or below the floor, vanilla starvation applies and they keep losing weight while starving.
 
-Settings (Options → Mod settings → RimRound):
+Settings (Options → Mod settings → RimRound; to be renamed to Physique in roadmap Phase 0):
 
 - **Kilograms per nutrition**: default 1.0, RimRound's original pacing. About 0.2 is physiologically realistic: 1 nutrition is roughly 1,500 kcal and 1 kg of fat roughly 7,700 kcal.
 - **Gain / loss multipliers**, **show pounds**, and **weight opinion moodlets** on or off.

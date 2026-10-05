@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <ModMetaData>
-	<name>RimRound</name>
-	<author>Niwatori401</author>
-	<packageId>Niwatori401.RimRound</packageId>
+	<name>Physique</name>
+	<author>o2545hjkgk</author>
+	<packageId>o2545hjkgk.Physique</packageId>
 	<supportedVersions>
 		<li>1.6</li>
 	</supportedVersions>
-	<description>Body weight for RimWorld pawns: a weight hediff with realistic effects, weight opinion traits and moods, and weight gain and loss from how much they eat.</description>
-	<url>https://github.com/Niwatori401/RimRound/tree/main</url>
+	<description>Realistic body systems for RimWorld pawns. Currently: body weight with realistic effects, weight opinion traits and moods, and weight gain and loss from how much they eat. Planned: growth (height) and muscle. Based on RimRound by Niwatori401.</description>
+	<url>https://github.com/o2545hjkgk/rimworld_body_systems</url>
 	<modDependencies>
 		<li>
 			<packageId>brrainz.harmony</packageId>
