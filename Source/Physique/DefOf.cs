@@ -7,6 +7,8 @@ namespace Physique.Defs
     public static class HediffDefOf
     {
         public static HediffDef Physique_Weight;
+        public static HediffDef Physique_Fat;
+        public static HediffDef Physique_Muscle;
 
         static HediffDefOf() => DefOfHelper.EnsureInitializedInCtor(typeof(HediffDefOf));
     }

@@ -3,35 +3,54 @@ using System;
 namespace Physique.Core
 {
     /// <summary>
+    /// A body as frame + muscle + fat, in adult-equivalent kg (real kg = these × body size).
+    /// </summary>
+    public readonly struct BodyComposition
+    {
+        public readonly float HeightCm;
+        public readonly float FrameKg;
+        public readonly float MuscleKg;
+        public readonly float FatKg;
+
+        public BodyComposition(float heightCm, float frameKg, float muscleKg, float fatKg)
+        {
+            HeightCm = heightCm;
+            FrameKg = frameKg;
+            MuscleKg = muscleKg;
+            FatKg = fatKg;
+        }
+
+        public float WeightKg => FrameKg + MuscleKg + FatKg;
+
+        public float LeanKg => FrameKg + MuscleKg;
+
+        public float Bmi => BodyMath.Bmi(WeightKg, HeightCm);
+
+        public float BodyFatFraction => WeightKg > 0f ? FatKg / WeightKg : 0f;
+    }
+
+    /// <summary>
     /// Body formulas with no RimWorld dependency, so they can be unit tested outside the game.
     /// </summary>
     public static class BodyMath
     {
-        public const float SeverityPerKilo = 0.001f;
         public const float PoundsPerKilo = 2.20462f;
         public const float MinBodySizeFactor = 0.05f;
 
         /// <summary>
-        /// Upper weight-severity bound of each weight opinion mood stage. Severities above the
-        /// last bound use the stage after it (Gigantic II).
+        /// Upper BMI bound of each weight opinion mood stage. BMIs above the last bound use the
+        /// stage after it (Gigantic II).
         /// </summary>
-        public static readonly float[] OpinionMoodStageMaxSeverity =
+        public static readonly float[] OpinionMoodStageMaxBmi =
         {
-            0.010f, 0.020f, 0.035f, 0.050f, 0.070f, 0.095f, 0.120f, 0.150f,
-            0.190f, 0.235f, 0.295f, 0.360f, 0.440f, 0.530f, 0.660f, 0.800f,
+            11.4f, 14.7f, 19.6f, 24.5f, 31.0f, 39.2f, 47.3f, 57.1f,
+            70.2f, 84.9f, 104.5f, 125.7f, 151.8f, 181.2f, 223.7f, 269.4f,
         };
 
-        // Weight severity is stored relative to body size: for an adult human (body size 1),
-        // kg = severity * 1000 + baseWeight. Other pawns weigh that much times their body size.
-
-        public static float SeverityToAdultKilos(float severity, float baseWeight)
+        public static float Bmi(float weightKg, float heightCm)
         {
-            return severity / SeverityPerKilo + baseWeight;
-        }
-
-        public static float AdultKilosToSeverity(float adultKilos, float baseWeight)
-        {
-            return (adultKilos - baseWeight) * SeverityPerKilo;
+            float heightM = heightCm / 100f;
+            return weightKg / (heightM * heightM);
         }
 
         public static float BodySizeFactor(float bodySize)
@@ -39,15 +58,15 @@ namespace Physique.Core
             return Math.Max(bodySize, MinBodySizeFactor);
         }
 
-        public static float SeverityToKilos(float severity, float baseWeight, float bodySize)
+        /// <summary>Converts real kg to adult-equivalent kg, the unit body composition is stored in.</summary>
+        public static float ToAdultKilos(float kilos, float bodySize)
         {
-            return SeverityToAdultKilos(severity, baseWeight) * BodySizeFactor(bodySize);
+            return kilos / BodySizeFactor(bodySize);
         }
 
-        /// <summary>Severity change for gaining (or, if negative, losing) <paramref name="kilos"/> of real weight.</summary>
-        public static float SeverityDeltaForKilos(float kilos, float bodySize)
+        public static float ToRealKilos(float adultKilos, float bodySize)
         {
-            return kilos / BodySizeFactor(bodySize) * SeverityPerKilo;
+            return adultKilos * BodySizeFactor(bodySize);
         }
 
         public static string FormatWeight(float kilos, bool usePounds)
@@ -57,14 +76,24 @@ namespace Physique.Core
                 : $"{kilos:F1} kg";
         }
 
-        public static int OpinionMoodStageIndex(float weightSeverity)
+        public static int OpinionMoodStageIndex(float bmi)
         {
-            for (int i = 0; i < OpinionMoodStageMaxSeverity.Length; ++i)
+            for (int i = 0; i < OpinionMoodStageMaxBmi.Length; ++i)
             {
-                if (weightSeverity <= OpinionMoodStageMaxSeverity[i])
+                if (bmi <= OpinionMoodStageMaxBmi[i])
                     return i;
             }
-            return OpinionMoodStageMaxSeverity.Length;
+            return OpinionMoodStageMaxBmi.Length;
+        }
+
+        /// <summary>
+        /// Splits a starting weight into muscle and fat for a given frame. Weight that would leave
+        /// less than essential fat is raised to the leanest healthy body instead, so nobody starts out wasted.
+        /// </summary>
+        public static BodyComposition StartingComposition(float heightCm, float frameKg, float muscleKg, float essentialFatKg, float weightKg)
+        {
+            float fatKg = Math.Max(essentialFatKg, weightKg - frameKg - muscleKg);
+            return new BodyComposition(heightCm, frameKg, muscleKg, fatKg);
         }
 
         /// <summary>
@@ -79,19 +108,19 @@ namespace Physique.Core
         {
             /// <summary>Not hungry enough for the body to touch its stores.</summary>
             None,
-            /// <summary>Fat covers the food need: the pawn stays hungry but doesn't starve, and loses weight.</summary>
-            BurnFatForFood,
-            /// <summary>No fat left to spare and starving: the pawn wastes away on top of vanilla malnutrition.</summary>
-            WasteAway,
+            /// <summary>Fat covers the food need: the pawn stays hungry but doesn't starve, and loses fat.</summary>
+            BurnFat,
+            /// <summary>Down to essential fat and starving: muscle wastes away on top of vanilla malnutrition.</summary>
+            WasteMuscle,
         }
 
-        public static FastingResponse Fasting(float foodLevelPercentage, float hungryThresholdPercentage, bool starving, float adultKilos, float fatReserveFloorKilos)
+        public static FastingResponse Fasting(float foodLevelPercentage, float hungryThresholdPercentage, bool starving, float fatKg, float essentialFatKg)
         {
             if (foodLevelPercentage >= hungryThresholdPercentage)
                 return FastingResponse.None;
-            if (adultKilos > fatReserveFloorKilos)
-                return FastingResponse.BurnFatForFood;
-            return starving ? FastingResponse.WasteAway : FastingResponse.None;
+            if (fatKg > essentialFatKg)
+                return FastingResponse.BurnFat;
+            return starving ? FastingResponse.WasteMuscle : FastingResponse.None;
         }
 
         /// <summary>

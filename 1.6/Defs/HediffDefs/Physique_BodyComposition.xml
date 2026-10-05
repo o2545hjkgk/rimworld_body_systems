@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+	<!--
+		Stored body composition. Both are hidden data hediffs: severity is adult-equivalent kg
+		(real kg = severity × body size). Weight (Physique_Weight) is derived from them plus the frame.
+	-->
+
+	<HediffDef>
+		<defName>Physique_Fat</defName>
+		<label>body fat</label>
+		<description>Stored body fat. Food eaten past a full stomach is added here, and it is burned off while hungry.</description>
+		<hediffClass>Physique.Hediffs.Hediff_BodyFat</hediffClass>
+		<isBad>false</isBad>
+		<everCurableByItem>false</everCurableByItem>
+		<initialSeverity>14</initialSeverity>
+		<minSeverity>0.1</minSeverity>
+		<!-- Weight cap. With the 30 kg frame and 26 kg baseline muscle this keeps weight just under 990 kg (where Titanic used to begin). -->
+		<maxSeverity>930</maxSeverity>
+	</HediffDef>
+
+	<HediffDef>
+		<defName>Physique_Muscle</defName>
+		<label>muscle</label>
+		<description>Skeletal muscle. Starvation wastes it once body fat is down to essential levels.</description>
+		<hediffClass>Physique.Hediffs.Hediff_Muscle</hediffClass>
+		<isBad>false</isBad>
+		<everCurableByItem>false</everCurableByItem>
+		<initialSeverity>26</initialSeverity>
+		<!-- Severe wasting: with a 30 kg frame and essential fat this is about BMI 12.4, Emaciated. -->
+		<minSeverity>5</minSeverity>
+		<maxSeverity>60</maxSeverity>
+	</HediffDef>
+</Defs>

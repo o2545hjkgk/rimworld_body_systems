@@ -23,12 +23,13 @@ Guiding principles:
 - [x] Move the pure formulas into `Core/BodyMath.cs` and add `Source/Physique.Tests`, which also cross-checks the XML defs.
 - [x] Branch layout: the rebuilt core goes to `main` by pull request.
 
-## Phase 1 — Body model refactor
+## Phase 1 — Body model refactor ✅
 
-- [ ] Add a `BodyComposition` view per pawn: height (cm), lean frame mass, muscle mass, fat mass, and derived weight, BMI and body-fat %.
-- [ ] Split the current weight hediff into **Fat** (severity = fat mass relative to frame). Migrate existing saves: current weight minus expected lean mass becomes fat.
-- [ ] Re-key fat stages to body-fat % (or BMI), so tall and short pawns are judged fairly. Keep the current effect table as the starting calibration.
-- [ ] Move the fat reserve floor to an essential-fat percentage instead of a flat 60 kg.
+- [x] `BodyComposition` (in `Core/BodyMath.cs`): height, frame, muscle, fat, and derived weight, BMI and body-fat %.
+- [x] Fat and muscle are stored in hidden hediffs (`Physique_Fat`, `Physique_Muscle`). Frame is a constant until Phase 2. Nothing has been released, so there's no save migration.
+- [x] Weight stages re-keyed to BMI, at a reference height of 1.75 m until Phase 2. The overweight calibration is unchanged; the underweight bands now follow the WHO thinness grades instead of unsurvivable kg values.
+- [x] The flat 60 kg fat reserve floor is replaced by essential fat. Below it, starvation wastes muscle, which is now the only way to become underweight.
+- [ ] Follow-up: move obesity effects onto fat % and wasting effects onto muscle once growth and muscle exist, so they no longer ride on BMI alone.
 
 ## Phase 2 — Growth
 

@@ -27,6 +27,7 @@ namespace Physique.AI
             if (weight is null)
                 return false;
 
+            // Weight severity is BMI.
             int stage = Mathf.Min(BodyMath.OpinionMoodStageIndex(weight.Severity), def.stages.Count - 1);
             return ThoughtState.ActiveAtStage(stage);
         }

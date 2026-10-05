@@ -20,31 +20,67 @@ namespace Physique.Tests
             return dir.FullName;
         }
 
-        static XElement WeightHediff() =>
-            XDocument.Load(Path.Combine(DefsDir, "HediffDefs", "Physique_Weight.xml")).Root.Element("HediffDef");
+        static XElement HediffDef(string file, string defName) =>
+            XDocument.Load(Path.Combine(DefsDir, "HediffDefs", file)).Root
+                .Elements("HediffDef").Single(d => (string)d.Element("defName") == defName);
+
+        static XElement Weight => HediffDef("Physique_Weight.xml", "Physique_Weight");
+        static XElement Fat => HediffDef("Physique_BodyComposition.xml", "Physique_Fat");
+        static XElement Muscle => HediffDef("Physique_BodyComposition.xml", "Physique_Muscle");
+        static XElement Model => Weight.Element("modExtensions").Element("li");
+
+        static float ModelValue(string name) => (float)Model.Element(name);
+
+        static float StageMin(XElement stage) => (float?)stage.Element("minSeverity") ?? 0f;
+
+        /// <summary>Weight stage a pawn of this adult-equivalent composition would be in.</summary>
+        static string StageFor(float muscleKg, float fatKg)
+        {
+            float bmi = new BodyComposition(ModelValue("referenceHeightCm"), ModelValue("frameKg"), muscleKg, fatKg).Bmi;
+            return (string)Weight.Element("stages").Elements("li").Last(s => bmi >= StageMin(s)).Element("label");
+        }
 
         [Fact]
         public void WeightStagesAscendAndEndAtGiganticII()
         {
-            var stages = WeightHediff().Element("stages").Elements("li").ToList();
-            float[] minSeverities = stages.Select(s => (float?)s.Element("minSeverity") ?? 0f).ToArray();
+            var stages = Weight.Element("stages").Elements("li").ToList();
+            float[] minBmis = stages.Select(StageMin).ToArray();
 
             Assert.Equal(17, stages.Count);
             Assert.Equal("Gigantic II", (string)stages.Last().Element("label"));
-            Assert.Equal(minSeverities.OrderBy(x => x), minSeverities);
-            Assert.Equal(minSeverities.Length, minSeverities.Distinct().Count());
+            Assert.Equal(minBmis.OrderBy(x => x), minBmis);
+            Assert.Equal(minBmis.Length, minBmis.Distinct().Count());
         }
 
         [Fact]
-        public void MaxWeightFallsInsideTheLastStage()
+        public void FatCapKeepsWeightInsideGiganticIIAndBelowTitanic()
         {
-            XElement hediff = WeightHediff();
-            float max = (float)hediff.Element("maxSeverity");
-            float lastStageMin = (float)hediff.Element("stages").Elements("li").Last().Element("minSeverity");
-            float baseWeight = (float)hediff.Element("modExtensions").Element("li").Element("baseWeight");
+            float maxFat = (float)Fat.Element("maxSeverity");
+            float maxWeight = ModelValue("frameKg") + ModelValue("baselineMuscleKg") + maxFat;
 
-            Assert.True(max >= lastStageMin);
-            Assert.True(BodyMath.SeverityToAdultKilos(max, baseWeight) < 990f, "Cap must stay below where Titanic began.");
+            Assert.Equal("Gigantic II", StageFor(ModelValue("baselineMuscleKg"), maxFat));
+            Assert.True(maxWeight < 990f, "Cap must stay below where Titanic began.");
+        }
+
+        [Fact]
+        public void FastingDownToEssentialFatLeavesAHealthyWeight()
+        {
+            Assert.Equal("Thick", StageFor(ModelValue("baselineMuscleKg"), ModelValue("essentialFatKg")));
+        }
+
+        [Fact]
+        public void StarvationWastingCanReachEmaciated()
+        {
+            float minMuscle = (float)Muscle.Element("minSeverity");
+            Assert.Equal("Emaciated", StageFor(minMuscle, ModelValue("essentialFatKg")));
+        }
+
+        [Fact]
+        public void BaselineMuscleIsWithinMuscleLimits()
+        {
+            float baseline = ModelValue("baselineMuscleKg");
+            Assert.InRange(baseline, (float)Muscle.Element("minSeverity"), (float)Muscle.Element("maxSeverity"));
+            Assert.Equal(baseline, (float)Muscle.Element("initialSeverity"));
         }
 
         [Fact]
@@ -61,7 +97,7 @@ namespace Physique.Tests
             {
                 string requiredTrait = (string)mood.Element("requiredTraits").Element("li");
                 Assert.Contains(requiredTrait, traits);
-                Assert.Equal(BodyMath.OpinionMoodStageMaxSeverity.Length + 1, mood.Element("stages").Elements("li").Count());
+                Assert.Equal(BodyMath.OpinionMoodStageMaxBmi.Length + 1, mood.Element("stages").Elements("li").Count());
             }
         }
 

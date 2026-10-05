@@ -38,7 +38,7 @@ namespace Physique.Utilities
 
         public static void AssignWeightOpinionIfMissing(Pawn pawn)
         {
-            if (!WeightUtility.CanHaveWeight(pawn) || pawn.story?.traits is null || WeightOpinionTrait(pawn) != null)
+            if (!BodyUtility.CanHaveBody(pawn) || pawn.story?.traits is null || WeightOpinionTrait(pawn) != null)
                 return;
 
             TraitDef trait = TraitCommonality.RandomElementByWeight(x => x.Second).First;

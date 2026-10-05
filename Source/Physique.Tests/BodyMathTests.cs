@@ -5,39 +5,39 @@ namespace Physique.Tests
 {
     public class BodyMathTests
     {
-        const float BaseWeight = 25f;
+        static BodyComposition Body(float muscle, float fat) => new BodyComposition(175f, 30f, muscle, fat);
+
+        [Fact]
+        public void WeightIsFramePlusMusclePlusFat()
+        {
+            BodyComposition body = Body(26f, 14f);
+            Assert.Equal(70f, body.WeightKg, 3);
+            Assert.Equal(56f, body.LeanKg, 3);
+            Assert.Equal(0.2f, body.BodyFatFraction, 3);
+        }
 
         [Theory]
-        [InlineData(0.001f, 26f)]
-        [InlineData(0.035f, 60f)]   // Thick
-        [InlineData(0.800f, 825f)]  // Gigantic II
-        [InlineData(0.964f, 989f)]  // max severity
-        public void AdultSeverityMapsToKilos(float severity, float kilos)
+        [InlineData(70f, 175f, 22.86f)]
+        [InlineData(825f, 175f, 269.39f)]   // Gigantic II used to start at 825 kg
+        [InlineData(70f, 160f, 27.34f)]
+        public void BmiIsWeightOverHeightSquared(float kilos, float heightCm, float bmi)
         {
-            Assert.Equal(kilos, BodyMath.SeverityToAdultKilos(severity, BaseWeight), 3);
-            Assert.Equal(severity, BodyMath.AdultKilosToSeverity(kilos, BaseWeight), 5);
+            Assert.Equal(bmi, BodyMath.Bmi(kilos, heightCm), 2);
         }
 
         [Fact]
-        public void KilosScaleWithBodySize()
+        public void RealKilosScaleWithBodySize()
         {
-            Assert.Equal(40f, BodyMath.SeverityToKilos(0.055f, BaseWeight, 0.5f), 3);
-            Assert.Equal(0.020f, BodyMath.SeverityDeltaForKilos(10f, 0.5f), 5);
+            Assert.Equal(35f, BodyMath.ToRealKilos(70f, 0.5f), 3);
+            Assert.Equal(20f, BodyMath.ToAdultKilos(10f, 0.5f), 3);
+            Assert.Equal(12.5f, BodyMath.ToRealKilos(BodyMath.ToAdultKilos(12.5f, 0.8f), 0.8f), 3);
         }
 
         [Fact]
         public void BodySizeHasAFloor()
         {
             Assert.Equal(BodyMath.MinBodySizeFactor, BodyMath.BodySizeFactor(0f));
-            Assert.True(float.IsFinite(BodyMath.SeverityDeltaForKilos(1f, 0f)));
-        }
-
-        [Fact]
-        public void GainingThenLosingTheSameKilosIsANoOp()
-        {
-            const float bodySize = 0.8f;
-            float severity = 0.1f + BodyMath.SeverityDeltaForKilos(12.5f, bodySize) + BodyMath.SeverityDeltaForKilos(-12.5f, bodySize);
-            Assert.Equal(0.1f, severity, 5);
+            Assert.True(float.IsFinite(BodyMath.ToAdultKilos(1f, 0f)));
         }
 
         [Fact]
@@ -48,15 +48,33 @@ namespace Physique.Tests
         }
 
         [Theory]
-        [InlineData(0.0f, 0)]
-        [InlineData(0.010f, 0)]
-        [InlineData(0.011f, 1)]
-        [InlineData(0.800f, 15)]
-        [InlineData(0.801f, 16)]
-        [InlineData(0.964f, 16)]
-        public void OpinionMoodStageCoversEveryWeightUpToTheCap(float severity, int stage)
+        [InlineData(10f, 0)]
+        [InlineData(11.4f, 0)]
+        [InlineData(11.5f, 1)]
+        [InlineData(22.9f, 3)]
+        [InlineData(269.4f, 15)]
+        [InlineData(269.5f, 16)]
+        [InlineData(322f, 16)]
+        public void OpinionMoodStageCoversEveryBmiUpToTheCap(float bmi, int stage)
         {
-            Assert.Equal(stage, BodyMath.OpinionMoodStageIndex(severity));
+            Assert.Equal(stage, BodyMath.OpinionMoodStageIndex(bmi));
+        }
+
+        [Fact]
+        public void StartingWeightAboveLeanMassBecomesFat()
+        {
+            BodyComposition body = BodyMath.StartingComposition(175f, 30f, 26f, 3f, 90f);
+            Assert.Equal(26f, body.MuscleKg);
+            Assert.Equal(34f, body.FatKg, 3);
+            Assert.Equal(90f, body.WeightKg, 3);
+        }
+
+        [Fact]
+        public void StartingWeightBelowLeanMassKeepsEssentialFat()
+        {
+            BodyComposition body = BodyMath.StartingComposition(175f, 30f, 26f, 3f, 45f);
+            Assert.Equal(26f, body.MuscleKg);
+            Assert.Equal(3f, body.FatKg);
         }
 
         [Theory]
@@ -69,15 +87,15 @@ namespace Physique.Tests
         }
 
         [Theory]
-        [InlineData(0.30f, false, 120f, BodyMath.FastingResponse.None)]           // not hungry
-        [InlineData(0.20f, false, 120f, BodyMath.FastingResponse.BurnFatForFood)] // hungry, has reserves
-        [InlineData(0.00f, true, 120f, BodyMath.FastingResponse.BurnFatForFood)]  // reserves still cover it
-        [InlineData(0.20f, false, 55f, BodyMath.FastingResponse.None)]            // hungry, lean: vanilla
-        [InlineData(0.00f, true, 55f, BodyMath.FastingResponse.WasteAway)]        // starving, lean
-        [InlineData(0.00f, true, 60f, BodyMath.FastingResponse.WasteAway)]        // floor itself is not a reserve
-        public void FastingResponseDependsOnHungerAndReserves(float foodPct, bool starving, float adultKilos, BodyMath.FastingResponse expected)
+        [InlineData(0.30f, false, 14f, BodyMath.FastingResponse.None)]        // not hungry
+        [InlineData(0.20f, false, 14f, BodyMath.FastingResponse.BurnFat)]     // hungry, has fat to spare
+        [InlineData(0.00f, true, 14f, BodyMath.FastingResponse.BurnFat)]      // fat still covers it
+        [InlineData(0.20f, false, 3f, BodyMath.FastingResponse.None)]         // hungry, essential fat only: vanilla
+        [InlineData(0.00f, true, 3f, BodyMath.FastingResponse.WasteMuscle)]   // starving, essential fat only
+        [InlineData(0.00f, true, 2f, BodyMath.FastingResponse.WasteMuscle)]
+        public void FastingBurnsFatBeforeMuscle(float foodPct, bool starving, float fatKg, BodyMath.FastingResponse expected)
         {
-            Assert.Equal(expected, BodyMath.Fasting(foodPct, 0.25f, starving, adultKilos, 60f));
+            Assert.Equal(expected, BodyMath.Fasting(foodPct, 0.25f, starving, fatKg, 3f));
         }
 
         static readonly (float, float)[] Distribution =

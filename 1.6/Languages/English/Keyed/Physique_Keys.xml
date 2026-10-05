@@ -6,4 +6,7 @@
 	<Physique_Settings_LossMultiplier>Weight loss multiplier: {0}</Physique_Settings_LossMultiplier>
 	<Physique_Settings_UsePounds>Show weight in pounds</Physique_Settings_UsePounds>
 	<Physique_Settings_OpinionMoodlets>Weight opinion moodlets</Physique_Settings_OpinionMoodlets>
+	<Physique_Tip_Bmi>BMI {0} (at {1} cm, the assumed height until growth is modelled)</Physique_Tip_Bmi>
+	<Physique_Tip_BodyFat>Body fat: {0} ({1})</Physique_Tip_BodyFat>
+	<Physique_Tip_Muscle>Muscle: {0}</Physique_Tip_Muscle>
 </LanguageData>

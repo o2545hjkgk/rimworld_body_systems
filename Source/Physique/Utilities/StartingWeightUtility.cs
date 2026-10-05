@@ -1,6 +1,5 @@
 using Physique.Core;
 using RimWorld;
-using UnityEngine;
 using Verse;
 
 namespace Physique.Utilities
@@ -9,13 +8,12 @@ namespace Physique.Utilities
     {
         /// <summary>
         /// Rolls a starting weight, in adult-equivalent kg, from the pawn's faction distribution
-        /// plus a nudge from its weight opinion.
+        /// plus a nudge from its weight opinion. BodyMath.StartingComposition keeps it above the leanest healthy body.
         /// </summary>
         public static float RandomStartingAdultKilos(Pawn pawn)
         {
-            float kilos = BodyMath.SampleWeightDistribution(DistributionFor(pawn), Rand.Value, Rand.Value)
+            return BodyMath.SampleWeightDistribution(DistributionFor(pawn), Rand.Value, Rand.Value)
                 + WeightOpinionUtility.StartingWeightBonusKilos(pawn);
-            return Mathf.Max(kilos, WeightUtility.SeverityToAdultKilos(Defs.HediffDefOf.Physique_Weight.minSeverity));
         }
 
         // (cumulative probability, adult kg); see BodyMath.SampleWeightDistribution.
